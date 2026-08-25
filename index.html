@@ -39,6 +39,11 @@ body{
   font-weight:400;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
+
+  /* 한글이 단어 중간에서 끊기지 않게 함 (조회합니 / 다. 방지)
+     단, 띄어쓰기 없는 아주 긴 글자는 예외로 끊어서 화면 밖으로 넘치는 걸 막음 */
+  word-break:keep-all;
+  overflow-wrap:break-word;
 }
 
 body::before{
@@ -61,6 +66,7 @@ body::before{
 .tagline{
   margin-top:14px; max-width:44ch;
   color:var(--muted); font-size:15px;
+  text-wrap:pretty;   /* 마지막 줄에 한 단어만 덩그러니 남는 걸 줄여줌 */
 }
 
 /* ---------- 캐릭터 검색 ---------- */
