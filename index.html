@@ -78,7 +78,7 @@ body::before{
 .charsearch input::placeholder{ color:var(--muted); font-weight:400; }
 .charsearch input:focus{ outline:none; border-color:var(--gold); }
 
-.charsearch button{
+.charsearch .go{
   padding:0 26px;
   background:var(--gold); color:#14121b;
   border:none; border-radius:10px;
@@ -86,13 +86,61 @@ body::before{
   cursor:pointer; white-space:nowrap;
   transition:filter .15s;
 }
-.charsearch button:hover{ filter:brightness(1.08); }
-.charsearch button:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
+.charsearch .go:hover{ filter:brightness(1.08); }
+.charsearch .go:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
 
 .charhint{ margin-top:10px; font-size:12.5px; color:var(--muted); }
 
-/* 검색 결과 패널 */
-.charresult{ margin-top:18px; }
+/* ---------- 최근 검색 ---------- */
+.recents{ margin-top:14px; display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
+.recents:empty{ display:none; }
+
+.recents .label{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  color:var(--muted); margin-right:2px;
+}
+
+/* 알약 하나 = 닉네임 버튼 + X 버튼 */
+.chip{
+  display:inline-flex; align-items:stretch;
+  border:1px solid var(--line); border-radius:999px;
+  overflow:hidden;
+  transition:border-color .15s;
+}
+.chip:hover{ border-color:var(--gold-dim); }
+
+.chip .name{
+  padding:5px 12px;
+  background:transparent; border:none;
+  color:var(--text); font-family:var(--body); font-size:13px;
+  cursor:pointer; max-width:150px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  transition:background .15s, color .15s;
+}
+.chip .name:hover{ background:var(--panel-hi); color:var(--gold); }
+
+.chip .del{
+  padding:5px 10px 5px 6px;
+  background:transparent; border:none; border-left:1px solid var(--line);
+  color:var(--muted); font-family:var(--mono); font-size:12px; line-height:1.4;
+  cursor:pointer;
+  transition:background .15s, color .15s;
+}
+.chip .del:hover{ background:#3a2430; color:#ff8f8f; }
+
+.chip .name:focus-visible,
+.chip .del:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
+
+.recents .clearall{
+  margin-left:4px; padding:5px 8px;
+  background:none; border:none;
+  color:var(--muted); font-family:var(--body); font-size:12px;
+  cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+}
+.recents .clearall:hover{ color:var(--text); }
+
+/* ---------- 캐릭터 검색 결과 ---------- */
+.charresult{ margin-top:20px; }
 .charresult:empty{ display:none; }
 
 .charresult .who{
@@ -193,7 +241,7 @@ footer{
 @media (max-width:640px){
   .masthead{ padding:44px 0 0; }
   .charsearch .row{ flex-direction:column; }
-  .charsearch button{ padding:14px 26px; }
+  .charsearch .go{ padding:14px 26px; }
   .grid{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion:reduce){
@@ -212,9 +260,11 @@ footer{
     <div class="charsearch">
       <div class="row">
         <input type="text" id="charInput" placeholder="캐릭터명을 입력하세요" autocomplete="off" spellcheck="false">
-        <button id="charBtn">검색</button>
+        <button class="go" id="charBtn">검색</button>
       </div>
       <p class="charhint">Enter 키로도 검색됩니다. 링크는 새 탭에서 열립니다.</p>
+
+      <div class="recents" id="recents"></div>
       <div class="charresult" id="charResult"></div>
     </div>
   </header>
@@ -230,6 +280,7 @@ footer{
 
   <footer>
     LOAHUB는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, LOAHUB는 해당 사이트들과 아무 관계가 없습니다.<br>
+    최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다.<br>
     로스트아크의 저작권은 Smilegate RPG에 있습니다. 본문 글꼴은 Noto Sans KR (SIL Open Font License 1.1)을 사용합니다.
   </footer>
 
@@ -241,8 +292,6 @@ footer{
 
    주소에 {닉네임} 이라고 적어두면, 검색창에 입력한 캐릭터명이
    그 자리에 자동으로 들어갑니다. (한글도 알아서 처리됩니다)
-
-   새 사이트를 추가하려면 줄 하나를 복사해서 붙여넣으세요.
    =================================================================== */
 
 const 캐릭터검색사이트 = [
@@ -251,6 +300,9 @@ const 캐릭터검색사이트 = [
   { 사이트:"로아와", 설명:"원정대 · 정보 카드",     주소:"https://loawa.com/char/{닉네임}" },
   { 사이트:"로아랩", 설명:"계산기 도구에 바로 연동", 주소:"https://lo4.app/characters?name={닉네임}" },
 ];
+
+/* 최근 검색을 몇 개까지 기억할지. 숫자만 바꾸면 됩니다. */
+const 최근보관개수 = 5;
 
 
 /* ===================================================================
@@ -312,6 +364,7 @@ const 분류순서 = [
 const $charInput  = document.getElementById('charInput');
 const $charBtn    = document.getElementById('charBtn');
 const $charResult = document.getElementById('charResult');
+const $recents    = document.getElementById('recents');
 const $filter     = document.getElementById('filterInput');
 const $sources    = document.getElementById('sources');
 const $results    = document.getElementById('results');
@@ -327,6 +380,93 @@ function 안전하게(글자){
 // 주소에서 도메인만 뽑아내기 (예: https://kloa.gg/ → kloa.gg)
 function 도메인(주소){
   return 주소.replace(/^https?:\/\//, '').replace(/[/?].*$/, '');
+}
+
+
+/* ---------- 최근 검색 보관함 ----------
+   브라우저의 localStorage에 저장합니다. 서버로 전송되지 않습니다.
+   시크릿 모드 등 저장이 막힌 환경에서는 자동으로 임시 보관으로 넘어갑니다. */
+
+const 보관키 = 'loahub.recent';
+let 임시보관 = [];          // localStorage를 못 쓸 때 대신 쓰는 곳
+let 저장가능 = false;
+
+try {
+  localStorage.setItem(보관키 + '.test', '1');
+  localStorage.removeItem(보관키 + '.test');
+  저장가능 = true;
+} catch (e) {
+  저장가능 = false;         // 조용히 임시 보관으로 넘어감
+}
+
+function 최근불러오기(){
+  if (!저장가능) return 임시보관;
+  try {
+    const 값 = JSON.parse(localStorage.getItem(보관키) || '[]');
+    // 저장된 게 이상한 형태여도 화면이 깨지지 않도록 걸러냄
+    return Array.isArray(값) ? 값.filter(v => typeof v === 'string' && v.trim()) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function 최근저장하기(목록){
+  임시보관 = 목록;
+  if (!저장가능) return;
+  try { localStorage.setItem(보관키, JSON.stringify(목록)); } catch (e) {}
+}
+
+function 최근추가(닉네임){
+  const 기존 = 최근불러오기();
+  // 같은 닉네임이 이미 있으면 빼고, 맨 앞에 다시 넣어서 최신순 유지
+  const 새목록 = [닉네임, ...기존.filter(n => n !== 닉네임)].slice(0, 최근보관개수);
+  최근저장하기(새목록);
+  최근그리기();
+}
+
+function 최근삭제(닉네임){
+  최근저장하기(최근불러오기().filter(n => n !== 닉네임));
+  최근그리기();
+}
+
+function 최근전체삭제(){
+  최근저장하기([]);
+  최근그리기();
+}
+
+function 최근그리기(){
+  const 목록 = 최근불러오기();
+
+  if (목록.length === 0){
+    $recents.innerHTML = '';
+    return;
+  }
+
+  const 알약들 = 목록.map(닉 => `
+    <span class="chip">
+      <button type="button" class="name" data-name="${안전하게(닉)}" title="${안전하게(닉)} 다시 검색">${안전하게(닉)}</button>
+      <button type="button" class="del"  data-del="${안전하게(닉)}"  title="${안전하게(닉)} 기록 삭제" aria-label="${안전하게(닉)} 기록 삭제">✕</button>
+    </span>`).join('');
+
+  $recents.innerHTML = `
+    <span class="label">최근</span>
+    ${알약들}
+    <button type="button" class="clearall" id="clearAll">전체 지우기</button>`;
+
+  // 닉네임을 누르면 그 캐릭터로 다시 검색
+  $recents.querySelectorAll('.name').forEach(버튼 => {
+    버튼.onclick = () => {
+      $charInput.value = 버튼.dataset.name;
+      캐릭터검색();
+    };
+  });
+
+  // ✕ 를 누르면 그 기록만 삭제
+  $recents.querySelectorAll('.del').forEach(버튼 => {
+    버튼.onclick = () => 최근삭제(버튼.dataset.del);
+  });
+
+  document.getElementById('clearAll').onclick = 최근전체삭제;
 }
 
 
@@ -356,6 +496,8 @@ function 캐릭터검색(){
   $charResult.innerHTML = `
     <div class="who"><b>${안전하게(닉네임)}</b><span>${캐릭터검색사이트.length}개 사이트에서 조회</span></div>
     <div class="charlinks">${링크들}</div>`;
+
+  최근추가(닉네임);
 }
 
 $charBtn.addEventListener('click', 캐릭터검색);
@@ -364,7 +506,7 @@ $charInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') 캐릭터검색();
 });
 
-// 입력을 다 지우면 결과 패널도 같이 치우기
+// 입력을 다 지우면 결과 패널도 같이 치우기 (최근 기록은 그대로 남음)
 $charInput.addEventListener('input', () => {
   if (!$charInput.value.trim()) $charResult.innerHTML = '';
 });
@@ -455,6 +597,7 @@ document.addEventListener('keydown', e => {
 });
 
 // 첫 화면 그리기
+최근그리기();
 사이트버튼그리기();
 목록그리기();
 $charInput.focus();
