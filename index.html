@@ -63,7 +63,7 @@ body::before{
   color:var(--muted); font-size:15px;
 }
 
-/* ---------- 캐릭터 검색 (이 사이트의 주 기능) ---------- */
+/* ---------- 캐릭터 검색 ---------- */
 .charsearch{ margin-top:32px; }
 
 .charsearch .row{ display:flex; gap:8px; }
@@ -91,16 +91,30 @@ body::before{
 
 .charhint{ margin-top:10px; font-size:12.5px; color:var(--muted); }
 
-/* ---------- 최근 검색 ---------- */
-.recents{ margin-top:14px; display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
-.recents:empty{ display:none; }
+/* ---------- 고정 / 최근 탭 ---------- */
+.saved{ margin-top:18px; }
+.saved.hidden{ display:none; }
 
-.recents .label{
-  font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
-  color:var(--muted); margin-right:2px;
+.tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); }
+
+.tab{
+  padding:8px 15px 9px;
+  background:none; border:none; border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  color:var(--muted); font-family:var(--body); font-size:13.5px; font-weight:500;
+  cursor:pointer;
+  transition:color .15s, border-color .15s;
 }
+.tab:hover{ color:var(--text); }
+.tab .n{ font-family:var(--mono); font-size:11px; margin-left:6px; opacity:.75; }
+.tab[aria-selected="true"]{
+  color:var(--gold); font-weight:700; border-bottom-color:var(--gold);
+}
+.tab:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
 
-/* 알약 하나 = 닉네임 버튼 + X 버튼 */
+.chips{ margin-top:14px; display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
+
+/* 알약 하나 = [★] [닉네임] [✕] */
 .chip{
   display:inline-flex; align-items:stretch;
   border:1px solid var(--line); border-radius:999px;
@@ -108,39 +122,48 @@ body::before{
   transition:border-color .15s;
 }
 .chip:hover{ border-color:var(--gold-dim); }
+.chip.pinned{ border-color:var(--gold-dim); background:rgba(216,180,92,.06); }
+
+.chip button{
+  background:transparent; border:none;
+  font-family:var(--body); cursor:pointer;
+  transition:background .15s, color .15s;
+}
+.chip button:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
+
+.chip .star{
+  padding:5px 4px 5px 11px;
+  color:var(--muted); font-size:13px; line-height:1.4;
+}
+.chip .star:hover{ color:var(--gold); }
+.chip .star.on{ color:var(--gold); }
 
 .chip .name{
-  padding:5px 12px;
-  background:transparent; border:none;
-  color:var(--text); font-family:var(--body); font-size:13px;
-  cursor:pointer; max-width:150px;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  transition:background .15s, color .15s;
+  padding:5px 11px 5px 6px;
+  color:var(--text); font-size:13px;
+  max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .chip .name:hover{ background:var(--panel-hi); color:var(--gold); }
 
 .chip .del{
-  padding:5px 10px 5px 6px;
-  background:transparent; border:none; border-left:1px solid var(--line);
+  padding:5px 10px 5px 8px;
+  border-left:1px solid var(--line);
   color:var(--muted); font-family:var(--mono); font-size:12px; line-height:1.4;
-  cursor:pointer;
-  transition:background .15s, color .15s;
 }
 .chip .del:hover{ background:#3a2430; color:#ff8f8f; }
 
-.chip .name:focus-visible,
-.chip .del:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
-
-.recents .clearall{
+.chips .clearall{
   margin-left:4px; padding:5px 8px;
   background:none; border:none;
   color:var(--muted); font-family:var(--body); font-size:12px;
   cursor:pointer; text-decoration:underline; text-underline-offset:3px;
 }
-.recents .clearall:hover{ color:var(--text); }
+.chips .clearall:hover{ color:var(--text); }
+
+.chips .none{ font-size:12.5px; color:var(--muted); padding:3px 0; }
 
 /* ---------- 캐릭터 검색 결과 ---------- */
-.charresult{ margin-top:20px; }
+.charresult{ margin-top:22px; }
 .charresult:empty{ display:none; }
 
 .charresult .who{
@@ -162,39 +185,11 @@ body::before{
 .charlink .s{ font-size:15px; font-weight:700; color:var(--gold); }
 .charlink .d{ margin-top:4px; font-size:12.5px; color:var(--muted); line-height:1.5; }
 
-/* ---------- 도구 목록 영역 ---------- */
-.toolszone{ margin-top:56px; padding-top:32px; border-top:1px solid var(--line); }
-
+/* ---------- 도구 모음 ---------- */
+.toolszone{ margin-top:60px; padding-top:32px; border-top:1px solid var(--line); }
 .zonehead{ font-size:13px; font-weight:700; letter-spacing:.08em; color:var(--muted); }
 
-.filterbar{ margin-top:14px; }
-.filterbar input{
-  width:100%; padding:12px 15px;
-  background:var(--panel); color:var(--text);
-  border:1px solid var(--line); border-radius:9px;
-  font-family:var(--body); font-size:14px;
-}
-.filterbar input::placeholder{ color:var(--muted); }
-.filterbar input:focus{ outline:none; border-color:var(--gold-dim); }
-
-.sources{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
-.src{
-  display:inline-flex; align-items:baseline; gap:8px;
-  padding:6px 13px;
-  background:transparent; color:var(--muted);
-  border:1px solid var(--line); border-radius:999px;
-  font-family:var(--body); font-size:13px; cursor:pointer;
-  transition:border-color .15s, color .15s, background .15s;
-}
-.src .n{ font-family:var(--mono); font-size:11px; color:var(--gold-dim); }
-.src:hover{ color:var(--text); border-color:var(--gold-dim); }
-.src[aria-pressed="true"]{
-  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:700;
-}
-.src[aria-pressed="true"] .n{ color:rgba(20,18,27,.6); }
-
-/* ---------- 기능 카드 ---------- */
-.group{ padding:34px 0 4px; }
+.group{ padding:32px 0 4px; }
 
 .group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:16px; }
 .group-head h2{ font-size:18px; font-weight:700; letter-spacing:-.01em; }
@@ -228,10 +223,6 @@ body::before{
 .card .site{ font-size:12.5px; color:var(--gold); font-weight:500; }
 .card .domain{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }
 
-/* ---------- 결과 없음 / 푸터 ---------- */
-.empty{ padding:56px 0; text-align:center; color:var(--muted); font-size:14px; }
-.empty b{ color:var(--text); font-weight:700; }
-
 footer{
   margin-top:64px; padding:28px 0 60px;
   border-top:1px solid var(--line);
@@ -262,25 +253,28 @@ footer{
         <input type="text" id="charInput" placeholder="캐릭터명을 입력하세요" autocomplete="off" spellcheck="false">
         <button class="go" id="charBtn">검색</button>
       </div>
-      <p class="charhint">Enter 키로도 검색됩니다. 링크는 새 탭에서 열립니다.</p>
+      <p class="charhint">Enter 키로도 검색됩니다. ★를 누르면 고정 탭에 보관됩니다.</p>
 
-      <div class="recents" id="recents"></div>
+      <div class="saved hidden" id="saved">
+        <div class="tabs" role="tablist">
+          <button class="tab" id="tabPinned" role="tab" data-tab="pinned"  aria-selected="false">고정<span class="n" id="cntPinned">0</span></button>
+          <button class="tab" id="tabRecent" role="tab" data-tab="recent"  aria-selected="true">최근<span class="n" id="cntRecent">0</span></button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+
       <div class="charresult" id="charResult"></div>
     </div>
   </header>
 
   <section class="toolszone">
-    <h2 class="zonehead">도구 찾기</h2>
-    <div class="filterbar">
-      <input type="search" id="filterInput" placeholder="기능으로 검색  ·  예: 시세, 재련, 모험 섬" autocomplete="off">
-    </div>
-    <div class="sources" id="sources"></div>
+    <h2 class="zonehead">도구 모음</h2>
     <div id="results"></div>
   </section>
 
   <footer>
     LOAHUB는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, LOAHUB는 해당 사이트들과 아무 관계가 없습니다.<br>
-    최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다.<br>
+    고정 및 최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다.<br>
     로스트아크의 저작권은 Smilegate RPG에 있습니다. 본문 글꼴은 Noto Sans KR (SIL Open Font License 1.1)을 사용합니다.
   </footer>
 
@@ -301,8 +295,9 @@ const 캐릭터검색사이트 = [
   { 사이트:"로아랩", 설명:"계산기 도구에 바로 연동", 주소:"https://lo4.app/characters?name={닉네임}" },
 ];
 
-/* 최근 검색을 몇 개까지 기억할지. 숫자만 바꾸면 됩니다. */
-const 최근보관개수 = 5;
+/* 보관 개수. 숫자만 바꾸면 됩니다. */
+const 최근보관개수 = 5;    // 최근 탭에 남길 개수
+const 고정보관개수 = 10;   // 고정 탭에 넣을 수 있는 최대 개수
 
 
 /* ===================================================================
@@ -364,13 +359,15 @@ const 분류순서 = [
 const $charInput  = document.getElementById('charInput');
 const $charBtn    = document.getElementById('charBtn');
 const $charResult = document.getElementById('charResult');
-const $recents    = document.getElementById('recents');
-const $filter     = document.getElementById('filterInput');
-const $sources    = document.getElementById('sources');
+const $saved      = document.getElementById('saved');
+const $chips      = document.getElementById('chips');
+const $tabPinned  = document.getElementById('tabPinned');
+const $tabRecent  = document.getElementById('tabRecent');
+const $cntPinned  = document.getElementById('cntPinned');
+const $cntRecent  = document.getElementById('cntRecent');
 const $results    = document.getElementById('results');
 
-let 선택된사이트 = null;
-let 검색어 = '';
+let 현재탭 = 'recent';   // 'pinned' 또는 'recent'
 
 // HTML에 그대로 넣어도 안전하게 문자 변환
 function 안전하게(글자){
@@ -383,26 +380,26 @@ function 도메인(주소){
 }
 
 
-/* ---------- 최근 검색 보관함 ----------
+/* ---------- 보관함 ----------
    브라우저의 localStorage에 저장합니다. 서버로 전송되지 않습니다.
    시크릿 모드 등 저장이 막힌 환경에서는 자동으로 임시 보관으로 넘어갑니다. */
 
-const 보관키 = 'loahub.recent';
-let 임시보관 = [];          // localStorage를 못 쓸 때 대신 쓰는 곳
+const 키 = { recent:'loahub.recent', pinned:'loahub.pinned' };
+const 임시보관 = { recent:[], pinned:[] };
 let 저장가능 = false;
 
 try {
-  localStorage.setItem(보관키 + '.test', '1');
-  localStorage.removeItem(보관키 + '.test');
+  localStorage.setItem('loahub.test', '1');
+  localStorage.removeItem('loahub.test');
   저장가능 = true;
 } catch (e) {
-  저장가능 = false;         // 조용히 임시 보관으로 넘어감
+  저장가능 = false;   // 조용히 임시 보관으로 넘어감
 }
 
-function 최근불러오기(){
-  if (!저장가능) return 임시보관;
+function 불러오기(구분){
+  if (!저장가능) return 임시보관[구분];
   try {
-    const 값 = JSON.parse(localStorage.getItem(보관키) || '[]');
+    const 값 = JSON.parse(localStorage.getItem(키[구분]) || '[]');
     // 저장된 게 이상한 형태여도 화면이 깨지지 않도록 걸러냄
     return Array.isArray(값) ? 값.filter(v => typeof v === 'string' && v.trim()) : [];
   } catch (e) {
@@ -410,64 +407,119 @@ function 최근불러오기(){
   }
 }
 
-function 최근저장하기(목록){
-  임시보관 = 목록;
+function 저장하기(구분, 목록){
+  임시보관[구분] = 목록;
   if (!저장가능) return;
-  try { localStorage.setItem(보관키, JSON.stringify(목록)); } catch (e) {}
+  try { localStorage.setItem(키[구분], JSON.stringify(목록)); } catch (e) {}
 }
 
+// 최근 목록 맨 앞에 추가 (중복이면 앞으로 끌어올림)
 function 최근추가(닉네임){
-  const 기존 = 최근불러오기();
-  // 같은 닉네임이 이미 있으면 빼고, 맨 앞에 다시 넣어서 최신순 유지
-  const 새목록 = [닉네임, ...기존.filter(n => n !== 닉네임)].slice(0, 최근보관개수);
-  최근저장하기(새목록);
-  최근그리기();
+  const 기존 = 불러오기('recent');
+  저장하기('recent', [닉네임, ...기존.filter(n => n !== 닉네임)].slice(0, 최근보관개수));
 }
 
-function 최근삭제(닉네임){
-  최근저장하기(최근불러오기().filter(n => n !== 닉네임));
-  최근그리기();
+// ★ 를 눌렀을 때: 고정되어 있으면 해제, 아니면 고정
+function 고정토글(닉네임){
+  const 고정 = 불러오기('pinned');
+
+  if (고정.includes(닉네임)){
+    저장하기('pinned', 고정.filter(n => n !== 닉네임));
+  } else {
+    if (고정.length >= 고정보관개수){
+      alert(`고정은 최대 ${고정보관개수}개까지 가능합니다.\n먼저 하나를 해제해 주세요.`);
+      return;
+    }
+    저장하기('pinned', [...고정, 닉네임]);
+  }
+  보관함그리기();
 }
 
-function 최근전체삭제(){
-  최근저장하기([]);
-  최근그리기();
+function 삭제(구분, 닉네임){
+  저장하기(구분, 불러오기(구분).filter(n => n !== 닉네임));
+  보관함그리기();
 }
 
-function 최근그리기(){
-  const 목록 = 최근불러오기();
+function 전체삭제(구분){
+  저장하기(구분, []);
+  보관함그리기();
+}
+
+
+/* ---------- 보관함 화면 그리기 ---------- */
+
+function 보관함그리기(){
+  const 고정 = 불러오기('pinned');
+  const 최근 = 불러오기('recent');
+
+  $cntPinned.textContent = 고정.length;
+  $cntRecent.textContent = 최근.length;
+
+  // 둘 다 비어 있으면 영역 자체를 감춤
+  if (고정.length === 0 && 최근.length === 0){
+    $saved.classList.add('hidden');
+    return;
+  }
+  $saved.classList.remove('hidden');
+
+  // 고정이 비었는데 고정 탭을 보고 있으면 최근 탭으로 돌려놓기
+  if (현재탭 === 'pinned' && 고정.length === 0) 현재탭 = 'recent';
+
+  $tabPinned.setAttribute('aria-selected', 현재탭 === 'pinned');
+  $tabRecent.setAttribute('aria-selected', 현재탭 === 'recent');
+
+  const 목록 = 현재탭 === 'pinned' ? 고정 : 최근;
 
   if (목록.length === 0){
-    $recents.innerHTML = '';
+    $chips.innerHTML = `<span class="none">아직 없습니다. 최근 탭에서 ★를 눌러 고정해 보세요.</span>`;
     return;
   }
 
-  const 알약들 = 목록.map(닉 => `
-    <span class="chip">
-      <button type="button" class="name" data-name="${안전하게(닉)}" title="${안전하게(닉)} 다시 검색">${안전하게(닉)}</button>
-      <button type="button" class="del"  data-del="${안전하게(닉)}"  title="${안전하게(닉)} 기록 삭제" aria-label="${안전하게(닉)} 기록 삭제">✕</button>
-    </span>`).join('');
+  const 알약들 = 목록.map(닉 => {
+    const 고정됨 = 고정.includes(닉);
+    const 안전한닉 = 안전하게(닉);
+    return `
+      <span class="chip${고정됨 ? ' pinned' : ''}">
+        <button type="button" class="star${고정됨 ? ' on' : ''}" data-star="${안전한닉}"
+                title="${고정됨 ? '고정 해제' : '고정하기'}" aria-label="${안전한닉} ${고정됨 ? '고정 해제' : '고정하기'}">${고정됨 ? '★' : '☆'}</button>
+        <button type="button" class="name" data-name="${안전한닉}"
+                title="${안전한닉} 검색">${안전한닉}</button>
+        <button type="button" class="del" data-del="${안전한닉}"
+                title="목록에서 삭제" aria-label="${안전한닉} 삭제">✕</button>
+      </span>`;
+  }).join('');
 
-  $recents.innerHTML = `
-    <span class="label">최근</span>
-    ${알약들}
-    <button type="button" class="clearall" id="clearAll">전체 지우기</button>`;
+  $chips.innerHTML = 알약들 +
+    `<button type="button" class="clearall" id="clearAll">${현재탭 === 'pinned' ? '고정 전체 해제' : '최근 기록 지우기'}</button>`;
 
-  // 닉네임을 누르면 그 캐릭터로 다시 검색
-  $recents.querySelectorAll('.name').forEach(버튼 => {
+  // ★ : 고정 / 해제
+  $chips.querySelectorAll('.star').forEach(버튼 => {
+    버튼.onclick = () => 고정토글(버튼.dataset.star);
+  });
+
+  // 닉네임 : 다시 검색
+  $chips.querySelectorAll('.name').forEach(버튼 => {
     버튼.onclick = () => {
       $charInput.value = 버튼.dataset.name;
       캐릭터검색();
     };
   });
 
-  // ✕ 를 누르면 그 기록만 삭제
-  $recents.querySelectorAll('.del').forEach(버튼 => {
-    버튼.onclick = () => 최근삭제(버튼.dataset.del);
+  // ✕ : 지금 보고 있는 탭에서만 삭제
+  $chips.querySelectorAll('.del').forEach(버튼 => {
+    버튼.onclick = () => 삭제(현재탭, 버튼.dataset.del);
   });
 
-  document.getElementById('clearAll').onclick = 최근전체삭제;
+  document.getElementById('clearAll').onclick = () => 전체삭제(현재탭);
 }
+
+// 탭 전환
+[$tabPinned, $tabRecent].forEach(탭 => {
+  탭.onclick = () => {
+    현재탭 = 탭.dataset.tab;
+    보관함그리기();
+  };
+});
 
 
 /* ---------- 캐릭터 검색 ---------- */
@@ -498,6 +550,7 @@ function 캐릭터검색(){
     <div class="charlinks">${링크들}</div>`;
 
   최근추가(닉네임);
+  보관함그리기();
 }
 
 $charBtn.addEventListener('click', 캐릭터검색);
@@ -506,58 +559,20 @@ $charInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') 캐릭터검색();
 });
 
-// 입력을 다 지우면 결과 패널도 같이 치우기 (최근 기록은 그대로 남음)
+// 입력을 다 지우면 결과 패널만 치움 (보관함은 그대로)
 $charInput.addEventListener('input', () => {
   if (!$charInput.value.trim()) $charResult.innerHTML = '';
 });
 
 
-/* ---------- 도구 목록 ---------- */
+/* ---------- 도구 모음 ---------- */
 
-function 사이트버튼그리기(){
-  const 개수 = {};
-  기능목록.forEach(t => { 개수[t.사이트] = (개수[t.사이트] || 0) + 1; });
-
-  $sources.innerHTML = Object.entries(개수)
-    .sort((a,b) => b[1] - a[1])
-    .map(([이름, n]) => `
-      <button class="src" data-site="${안전하게(이름)}" aria-pressed="${선택된사이트 === 이름}">
-        ${안전하게(이름)} <span class="n">${n}</span>
-      </button>`)
-    .join('');
-
-  $sources.querySelectorAll('.src').forEach(버튼 => {
-    버튼.onclick = () => {
-      const 이름 = 버튼.dataset.site;
-      선택된사이트 = (선택된사이트 === 이름) ? null : 이름;   // 한 번 더 누르면 해제
-      사이트버튼그리기();
-      목록그리기();
-    };
-  });
-}
-
-function 걸러내기(){
-  const q = 검색어.trim().toLowerCase();
-  return 기능목록.filter(t => {
-    if (선택된사이트 && t.사이트 !== 선택된사이트) return false;
-    if (!q) return true;
-    return (t.기능 + t.설명 + t.사이트 + t.분류).toLowerCase().includes(q);
-  });
-}
-
-function 목록그리기(){
-  const 보여줄것 = 걸러내기();
-
-  if (보여줄것.length === 0){
-    $results.innerHTML = `<p class="empty">찾는 기능이 없습니다.<br>다른 단어로 검색하거나, <b>기능목록</b>에 직접 추가해 보세요.</p>`;
-    return;
-  }
-
-  const 모든분류 = [...분류순서, ...new Set(보여줄것.map(t => t.분류))]
+function 도구그리기(){
+  const 모든분류 = [...분류순서, ...new Set(기능목록.map(t => t.분류))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
   $results.innerHTML = 모든분류.map(분류 => {
-    const 항목들 = 보여줄것.filter(t => t.분류 === 분류);
+    const 항목들 = 기능목록.filter(t => t.분류 === 분류);
     if (항목들.length === 0) return '';
 
     const 카드들 = 항목들.map(t => `
@@ -582,11 +597,6 @@ function 목록그리기(){
   }).join('');
 }
 
-$filter.addEventListener('input', e => {
-  검색어 = e.target.value;
-  목록그리기();
-});
-
 // 키보드에서 / 를 누르면 캐릭터 검색창으로 이동
 document.addEventListener('keydown', e => {
   const 입력중 = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
@@ -596,10 +606,10 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 첫 화면 그리기
-최근그리기();
-사이트버튼그리기();
-목록그리기();
+// 첫 화면 그리기 — 고정된 게 있으면 고정 탭부터 보여주기
+if (불러오기('pinned').length > 0) 현재탭 = 'pinned';
+보관함그리기();
+도구그리기();
 $charInput.focus();
 </script>
 </body>
