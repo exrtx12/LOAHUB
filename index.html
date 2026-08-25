@@ -64,10 +64,12 @@ body::before{
 .wordmark em{ font-style:normal; color:var(--gold); }
 
 .tagline{
-  margin-top:14px; max-width:44ch;
+  margin-top:14px;
   color:var(--muted); font-size:15px;
-  text-wrap:pretty;   /* 마지막 줄에 한 단어만 덩그러니 남는 걸 줄여줌 */
+  text-wrap:pretty;
 }
+/* 문장 하나가 한 줄을 차지하게 함. 화면이 좁으면 알아서 다시 접힘 */
+.tagline span{ display:block; }
 
 /* ---------- 캐릭터 검색 ---------- */
 .charsearch{ margin-top:32px; }
@@ -243,7 +245,7 @@ footer{
 
   <header class="masthead">
     <h1 class="wordmark">LOA<em>HUB</em></h1>
-    <p class="tagline">캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다. 어느 사이트에 뭐가 있는지 외울 필요 없습니다.</p>
+    <p class="tagline"><span>캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다.</span><span>어느 사이트에 뭐가 있는지 외울 필요 없습니다.</span></p>
 
     <div class="charsearch">
       <div class="row">
