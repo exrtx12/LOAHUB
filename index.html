@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>로아허브 — 흩어진 로스트아크 도구를 한 곳에</title>
-<meta name="description" content="로스트아크 유저 사이트들의 기능을 기능 단위로 모아둔 인덱스입니다.">
+<title>LOAHUB — 흩어진 로스트아크 도구를 한 곳에</title>
+<meta name="description" content="캐릭터명 한 번만 입력하면 로스트아크 주요 사이트 전부에서 조회합니다.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 /* ===================================================================
@@ -26,8 +25,8 @@
   --text:       #ede9f5;
   --muted:      #8b849e;
 
-  --display: 'Gowun Batang', serif;
-  --body: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  /* Noto Sans KR — SIL Open Font License 1.1, 상업적 이용 포함 자유롭게 사용 가능 */
+  --body: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono', monospace;
 }
 
@@ -37,11 +36,11 @@ body{
   background:var(--ink);
   color:var(--text);
   font-family:var(--body);
+  font-weight:400;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
 
-/* 배경에 아주 옅은 빛무리 하나 */
 body::before{
   content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
   background:radial-gradient(900px 500px at 50% -15%, rgba(216,180,92,.10), transparent 70%);
@@ -50,29 +49,90 @@ body::before{
 .wrap{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 24px; }
 
 /* ---------- 상단 헤더 ---------- */
-.masthead{ padding:72px 0 36px; }
+.masthead{ padding:64px 0 0; }
 
 .wordmark{
-  font-family:var(--display); font-weight:700;
-  font-size:clamp(38px, 7vw, 62px); line-height:1.05;
-  letter-spacing:-.02em;
+  font-weight:900;
+  font-size:clamp(34px, 6.5vw, 54px);
+  line-height:1; letter-spacing:.01em;
 }
 .wordmark em{ font-style:normal; color:var(--gold); }
 
 .tagline{
-  margin-top:14px; max-width:46ch;
+  margin-top:14px; max-width:44ch;
   color:var(--muted); font-size:15px;
 }
 
-/* ---------- 출처 사이트 요약 (이 페이지의 핵심 장치) ---------- */
-.sources{
-  margin-top:34px; padding-top:22px;
-  border-top:1px solid var(--line);
-  display:flex; flex-wrap:wrap; gap:8px;
+/* ---------- 캐릭터 검색 (이 사이트의 주 기능) ---------- */
+.charsearch{ margin-top:32px; }
+
+.charsearch .row{ display:flex; gap:8px; }
+
+.charsearch input{
+  flex:1; min-width:0;
+  padding:16px 18px;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:10px;
+  font-family:var(--body); font-size:16px; font-weight:500;
 }
+.charsearch input::placeholder{ color:var(--muted); font-weight:400; }
+.charsearch input:focus{ outline:none; border-color:var(--gold); }
+
+.charsearch button{
+  padding:0 26px;
+  background:var(--gold); color:#14121b;
+  border:none; border-radius:10px;
+  font-family:var(--body); font-size:15px; font-weight:700;
+  cursor:pointer; white-space:nowrap;
+  transition:filter .15s;
+}
+.charsearch button:hover{ filter:brightness(1.08); }
+.charsearch button:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
+
+.charhint{ margin-top:10px; font-size:12.5px; color:var(--muted); }
+
+/* 검색 결과 패널 */
+.charresult{ margin-top:18px; }
+.charresult:empty{ display:none; }
+
+.charresult .who{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  margin-bottom:12px; font-size:13px; color:var(--muted);
+}
+.charresult .who b{ color:var(--gold); font-size:16px; font-weight:700; }
+
+.charlinks{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:10px; }
+
+.charlink{
+  display:block; padding:15px 16px;
+  background:var(--panel); border:1px solid var(--gold-dim); border-radius:10px;
+  color:inherit; text-decoration:none;
+  transition:background .16s, border-color .16s, transform .16s;
+}
+.charlink:hover{ background:var(--panel-hi); border-color:var(--gold); transform:translateY(-2px); }
+.charlink:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
+.charlink .s{ font-size:15px; font-weight:700; color:var(--gold); }
+.charlink .d{ margin-top:4px; font-size:12.5px; color:var(--muted); line-height:1.5; }
+
+/* ---------- 도구 목록 영역 ---------- */
+.toolszone{ margin-top:56px; padding-top:32px; border-top:1px solid var(--line); }
+
+.zonehead{ font-size:13px; font-weight:700; letter-spacing:.08em; color:var(--muted); }
+
+.filterbar{ margin-top:14px; }
+.filterbar input{
+  width:100%; padding:12px 15px;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:9px;
+  font-family:var(--body); font-size:14px;
+}
+.filterbar input::placeholder{ color:var(--muted); }
+.filterbar input:focus{ outline:none; border-color:var(--gold-dim); }
+
+.sources{ margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
 .src{
   display:inline-flex; align-items:baseline; gap:8px;
-  padding:7px 13px;
+  padding:6px 13px;
   background:transparent; color:var(--muted);
   border:1px solid var(--line); border-radius:999px;
   font-family:var(--body); font-size:13px; cursor:pointer;
@@ -81,31 +141,15 @@ body::before{
 .src .n{ font-family:var(--mono); font-size:11px; color:var(--gold-dim); }
 .src:hover{ color:var(--text); border-color:var(--gold-dim); }
 .src[aria-pressed="true"]{
-  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:600;
+  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:700;
 }
 .src[aria-pressed="true"] .n{ color:rgba(20,18,27,.6); }
 
-/* ---------- 검색창 ---------- */
-.searchbar{ position:sticky; top:0; z-index:5; padding:18px 0 14px; background:var(--ink); }
-.searchbar::after{
-  content:''; position:absolute; left:24px; right:24px; bottom:0; height:1px; background:var(--line);
-}
-.searchbar input{
-  width:100%; padding:14px 16px;
-  background:var(--panel); color:var(--text);
-  border:1px solid var(--line); border-radius:10px;
-  font-family:var(--body); font-size:15px;
-}
-.searchbar input::placeholder{ color:var(--muted); }
-.searchbar input:focus{ outline:none; border-color:var(--gold-dim); }
+/* ---------- 기능 카드 ---------- */
+.group{ padding:34px 0 4px; }
 
-/* ---------- 기능 목록 ---------- */
-.group{ padding:38px 0 4px; }
-
-.group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:18px; }
-.group-head h2{
-  font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:.01em;
-}
+.group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:16px; }
+.group-head h2{ font-size:18px; font-weight:700; letter-spacing:-.01em; }
 .group-head .rule{ flex:1; height:1px; background:var(--line); }
 .group-head .count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
 
@@ -127,18 +171,18 @@ body::before{
 .card:hover::before{ opacity:1; }
 .card:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
 
-.card .title{ font-size:15.5px; font-weight:600; letter-spacing:-.01em; }
+.card .title{ font-size:15px; font-weight:700; letter-spacing:-.01em; }
 .card .desc{ margin-top:6px; font-size:13px; color:var(--muted); line-height:1.55; }
 .card .from{
   margin-top:13px; padding-top:11px; border-top:1px solid var(--line);
   display:flex; align-items:center; justify-content:space-between; gap:10px;
 }
-.card .site{ font-size:12.5px; color:var(--gold); }
+.card .site{ font-size:12.5px; color:var(--gold); font-weight:500; }
 .card .domain{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }
 
 /* ---------- 결과 없음 / 푸터 ---------- */
-.empty{ padding:60px 0; text-align:center; color:var(--muted); font-size:14px; }
-.empty b{ color:var(--text); font-weight:600; }
+.empty{ padding:56px 0; text-align:center; color:var(--muted); font-size:14px; }
+.empty b{ color:var(--text); font-weight:700; }
 
 footer{
   margin-top:64px; padding:28px 0 60px;
@@ -147,7 +191,9 @@ footer{
 }
 
 @media (max-width:640px){
-  .masthead{ padding:48px 0 28px; }
+  .masthead{ padding:44px 0 0; }
+  .charsearch .row{ flex-direction:column; }
+  .charsearch button{ padding:14px 26px; }
   .grid{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion:reduce){
@@ -160,50 +206,66 @@ footer{
 <div class="wrap">
 
   <header class="masthead">
-    <h1 class="wordmark">로아<em>허브</em></h1>
-    <p class="tagline">사이트가 아니라 <b>기능</b>으로 찾습니다. 어느 사이트에 뭐가 있는지 외울 필요 없이, 하고 싶은 일을 고르세요.</p>
-    <div class="sources" id="sources"></div>
+    <h1 class="wordmark">LOA<em>HUB</em></h1>
+    <p class="tagline">캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다. 어느 사이트에 뭐가 있는지 외울 필요 없습니다.</p>
+
+    <div class="charsearch">
+      <div class="row">
+        <input type="text" id="charInput" placeholder="캐릭터명을 입력하세요" autocomplete="off" spellcheck="false">
+        <button id="charBtn">검색</button>
+      </div>
+      <p class="charhint">Enter 키로도 검색됩니다. 링크는 새 탭에서 열립니다.</p>
+      <div class="charresult" id="charResult"></div>
+    </div>
   </header>
 
-  <div class="searchbar">
-    <input type="search" id="search" placeholder="무엇을 하려고 하시나요?  예: 시세, 재련, 모험 섬" autocomplete="off">
-  </div>
-
-  <main id="results"></main>
+  <section class="toolszone">
+    <h2 class="zonehead">도구 찾기</h2>
+    <div class="filterbar">
+      <input type="search" id="filterInput" placeholder="기능으로 검색  ·  예: 시세, 재련, 모험 섬" autocomplete="off">
+    </div>
+    <div class="sources" id="sources"></div>
+    <div id="results"></div>
+  </section>
 
   <footer>
-    로아허브는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, 로아허브는 해당 사이트들과 아무 관계가 없습니다.<br>
-    로스트아크의 저작권은 Smilegate RPG에 있습니다.
+    LOAHUB는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, LOAHUB는 해당 사이트들과 아무 관계가 없습니다.<br>
+    로스트아크의 저작권은 Smilegate RPG에 있습니다. 본문 글꼴은 Noto Sans KR (SIL Open Font License 1.1)을 사용합니다.
   </footer>
 
 </div>
 
 <script>
 /* ===================================================================
-   ★★★ 앞으로 수정할 곳은 거의 여기뿐입니다 ★★★
+   ★ 1. 캐릭터 검색에 쓸 사이트 목록
 
-   기능 하나 = 아래 목록의 한 줄.
-   새 기능을 추가하려면 줄 하나를 복사해서 붙여넣고 내용만 바꾸세요.
-   쉼표(,)와 따옴표(")를 빠뜨리지 않도록 주의하세요.
+   주소에 {닉네임} 이라고 적어두면, 검색창에 입력한 캐릭터명이
+   그 자리에 자동으로 들어갑니다. (한글도 알아서 처리됩니다)
 
-   기능  : 카드에 크게 뜨는 이름
-   설명  : 그 밑에 작게 뜨는 한 줄 설명
-   사이트: 어느 사이트 기능인지
-   주소  : 클릭했을 때 갈 링크 (구체적인 페이지 주소일수록 좋습니다)
-   분류  : 같은 분류끼리 묶여서 표시됩니다
+   새 사이트를 추가하려면 줄 하나를 복사해서 붙여넣으세요.
+   =================================================================== */
 
-   ※ 화면에 나오는 순서는 이 목록에 적은 순서 그대로입니다.
-     카드 위치를 바꾸고 싶으면 줄 자체를 위아래로 옮기세요.
+const 캐릭터검색사이트 = [
+  { 사이트:"클로아", 설명:"전투 정보실 · 장비 상세", 주소:"https://kloa.gg/characters/{닉네임}" },
+  { 사이트:"로펙",   설명:"환산 점수 · 티어 확인",   주소:"https://lopec.kr/character/specPoint/{닉네임}" },
+  { 사이트:"로아와", 설명:"원정대 · 정보 카드",     주소:"https://loawa.com/char/{닉네임}" },
+  { 사이트:"로아랩", 설명:"계산기 도구에 바로 연동", 주소:"https://lo4.app/characters?name={닉네임}" },
+];
+
+
+/* ===================================================================
+   ★ 2. 아래쪽 도구 목록
+
+   기능 하나 = 한 줄. 적은 순서가 화면 순서 그대로입니다.
    =================================================================== */
 
 const 기능목록 = [
 
   /* ---------- 1. 캐릭터 · 랭킹 ---------- */
-  /* 캐릭터 검색은 사이트마다 보여주는 게 달라서 네 개를 나란히 뒀습니다 */
   { 기능:"캐릭터 검색",          설명:"전투 정보실 조회. 빠르고 즐겨찾기 지원",   사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
   { 기능:"캐릭터 검색",          설명:"정보 카드를 이미지로 저장할 수 있음",      사이트:"로아와", 주소:"https://loawa.com/", 분류:"캐릭터 · 랭킹" },
   { 기능:"환산 점수 검색",       설명:"캐릭터 스펙을 하나의 점수로 수치화",       사이트:"로펙",   주소:"https://lopec.kr/",  분류:"캐릭터 · 랭킹" },
-  { 기능:"캐릭터 검색",          설명:"검색한 캐릭터가 계산기 도구에 그대로 연동", 사이트:"로아랩", 주소:"https://lo4.app/",   분류:"캐릭터 · 랭킹" },
+  { 기능:"캐릭터 검색",          설명:"검색한 캐릭터가 계산기 도구에 그대로 연동", 사이트:"로아랩", 주소:"https://lo4.app/characters", 분류:"캐릭터 · 랭킹" },
   { 기능:"전투력 · 아이템 레벨 랭킹", 설명:"서버별 상위 캐릭터 순위",             사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
   { 기능:"내실 랭킹",            설명:"카드, 각인, 수집품 등 내실 순위",          사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
   { 기능:"환산 랭킹 · 티어컷",   설명:"에스더 / 그랜드마스터 등 구간 확인",       사이트:"로펙",   주소:"https://lopec.kr/",  분류:"캐릭터 · 랭킹" },
@@ -233,8 +295,7 @@ const 기능목록 = [
 
 ];
 
-/* 분류가 화면에 나오는 순서입니다. 여기 순서를 바꾸면 섹션 순서가 바뀝니다.
-   새 분류를 만들었다면 이름을 똑같이 적어서 여기에도 넣어주세요. */
+/* 분류가 화면에 나오는 순서 */
 const 분류순서 = [
   "캐릭터 · 랭킹",
   "일정 · 컨텐츠",
@@ -248,24 +309,69 @@ const 분류순서 = [
    아래는 화면을 그리는 코드입니다. 당장은 건드리지 않아도 됩니다.
    =================================================================== */
 
-const $results = document.getElementById('results');
-const $sources = document.getElementById('sources');
-const $search  = document.getElementById('search');
+const $charInput  = document.getElementById('charInput');
+const $charBtn    = document.getElementById('charBtn');
+const $charResult = document.getElementById('charResult');
+const $filter     = document.getElementById('filterInput');
+const $sources    = document.getElementById('sources');
+const $results    = document.getElementById('results');
 
-let 선택된사이트 = null;   // 사이트 버튼을 눌러 걸러낸 상태
+let 선택된사이트 = null;
 let 검색어 = '';
-
-// 주소에서 도메인만 뽑아내기 (예: https://kloa.gg/ → kloa.gg)
-function 도메인(주소){
-  return 주소.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-}
 
 // HTML에 그대로 넣어도 안전하게 문자 변환
 function 안전하게(글자){
   return String(글자).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
-// 상단의 사이트별 개수 버튼 만들기
+// 주소에서 도메인만 뽑아내기 (예: https://kloa.gg/ → kloa.gg)
+function 도메인(주소){
+  return 주소.replace(/^https?:\/\//, '').replace(/[/?].*$/, '');
+}
+
+
+/* ---------- 캐릭터 검색 ---------- */
+
+function 캐릭터검색(){
+  const 닉네임 = $charInput.value.trim();
+
+  if (!닉네임){
+    $charResult.innerHTML = '';
+    $charInput.focus();
+    return;
+  }
+
+  // 한글이나 특수문자가 주소에 안전하게 들어가도록 변환
+  const 변환된닉네임 = encodeURIComponent(닉네임);
+
+  const 링크들 = 캐릭터검색사이트.map(s => {
+    const 완성주소 = s.주소.replace('{닉네임}', 변환된닉네임);
+    return `
+      <a class="charlink" href="${안전하게(완성주소)}" target="_blank" rel="noopener noreferrer">
+        <div class="s">${안전하게(s.사이트)}</div>
+        <div class="d">${안전하게(s.설명)}</div>
+      </a>`;
+  }).join('');
+
+  $charResult.innerHTML = `
+    <div class="who"><b>${안전하게(닉네임)}</b><span>${캐릭터검색사이트.length}개 사이트에서 조회</span></div>
+    <div class="charlinks">${링크들}</div>`;
+}
+
+$charBtn.addEventListener('click', 캐릭터검색);
+
+$charInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') 캐릭터검색();
+});
+
+// 입력을 다 지우면 결과 패널도 같이 치우기
+$charInput.addEventListener('input', () => {
+  if (!$charInput.value.trim()) $charResult.innerHTML = '';
+});
+
+
+/* ---------- 도구 목록 ---------- */
+
 function 사이트버튼그리기(){
   const 개수 = {};
   기능목록.forEach(t => { 개수[t.사이트] = (개수[t.사이트] || 0) + 1; });
@@ -288,7 +394,6 @@ function 사이트버튼그리기(){
   });
 }
 
-// 조건에 맞는 기능만 골라내기
 function 걸러내기(){
   const q = 검색어.trim().toLowerCase();
   return 기능목록.filter(t => {
@@ -298,7 +403,6 @@ function 걸러내기(){
   });
 }
 
-// 기능 카드 목록 그리기
 function 목록그리기(){
   const 보여줄것 = 걸러내기();
 
@@ -307,7 +411,6 @@ function 목록그리기(){
     return;
   }
 
-  // 분류순서에 적힌 순서대로, 거기 없는 분류는 뒤에 붙이기
   const 모든분류 = [...분류순서, ...new Set(보여줄것.map(t => t.분류))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
@@ -337,23 +440,24 @@ function 목록그리기(){
   }).join('');
 }
 
-// 검색창에 글자를 칠 때마다 다시 그리기
-$search.addEventListener('input', e => {
+$filter.addEventListener('input', e => {
   검색어 = e.target.value;
   목록그리기();
 });
 
-// 키보드에서 / 를 누르면 검색창으로 이동
+// 키보드에서 / 를 누르면 캐릭터 검색창으로 이동
 document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.activeElement !== $search){
+  const 입력중 = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
+  if (e.key === '/' && !입력중){
     e.preventDefault();
-    $search.focus();
+    $charInput.focus();
   }
 });
 
 // 첫 화면 그리기
 사이트버튼그리기();
 목록그리기();
+$charInput.focus();
 </script>
 </body>
 </html>
