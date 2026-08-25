@@ -91,28 +91,20 @@ body::before{
 
 .charhint{ margin-top:10px; font-size:12.5px; color:var(--muted); }
 
-/* ---------- 고정 / 최근 탭 ---------- */
-.saved{ margin-top:18px; }
-.saved.hidden{ display:none; }
+/* ---------- 고정 / 최근 두 줄 ---------- */
+.saved{ margin-top:18px; display:flex; flex-direction:column; gap:9px; }
+.saved:empty{ display:none; }
 
-.tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); }
+.sline{ display:flex; align-items:flex-start; gap:10px; }
 
-.tab{
-  padding:8px 15px 9px;
-  background:none; border:none; border-bottom:2px solid transparent;
-  margin-bottom:-1px;
-  color:var(--muted); font-family:var(--body); font-size:13.5px; font-weight:500;
-  cursor:pointer;
-  transition:color .15s, border-color .15s;
+.slabel{
+  flex:none; width:30px; padding-top:6px;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.06em;
+  color:var(--muted); text-align:right;
 }
-.tab:hover{ color:var(--text); }
-.tab .n{ font-family:var(--mono); font-size:11px; margin-left:6px; opacity:.75; }
-.tab[aria-selected="true"]{
-  color:var(--gold); font-weight:700; border-bottom-color:var(--gold);
-}
-.tab:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
+.sline.pin .slabel{ color:var(--gold-dim); }
 
-.chips{ margin-top:14px; display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
+.chips{ display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
 
 /* 알약 하나 = [★] [닉네임] [✕] */
 .chip{
@@ -152,15 +144,13 @@ body::before{
 }
 .chip .del:hover{ background:#3a2430; color:#ff8f8f; }
 
-.chips .clearall{
-  margin-left:4px; padding:5px 8px;
+.clearall{
+  margin-left:2px; padding:5px 7px;
   background:none; border:none;
-  color:var(--muted); font-family:var(--body); font-size:12px;
+  color:var(--muted); font-family:var(--body); font-size:11.5px;
   cursor:pointer; text-decoration:underline; text-underline-offset:3px;
 }
-.chips .clearall:hover{ color:var(--text); }
-
-.chips .none{ font-size:12.5px; color:var(--muted); padding:3px 0; }
+.clearall:hover{ color:var(--text); }
 
 /* ---------- 캐릭터 검색 결과 ---------- */
 .charresult{ margin-top:22px; }
@@ -233,6 +223,7 @@ footer{
   .masthead{ padding:44px 0 0; }
   .charsearch .row{ flex-direction:column; }
   .charsearch .go{ padding:14px 26px; }
+  .slabel{ width:26px; font-size:10px; }
   .grid{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion:reduce){
@@ -253,16 +244,9 @@ footer{
         <input type="text" id="charInput" placeholder="캐릭터명을 입력하세요" autocomplete="off" spellcheck="false">
         <button class="go" id="charBtn">검색</button>
       </div>
-      <p class="charhint">Enter 키로도 검색됩니다. ★를 누르면 고정 탭에 보관됩니다.</p>
+      <p class="charhint">Enter 키로도 검색됩니다. ★를 누르면 위쪽 고정 줄로 올라갑니다.</p>
 
-      <div class="saved hidden" id="saved">
-        <div class="tabs" role="tablist">
-          <button class="tab" id="tabPinned" role="tab" data-tab="pinned"  aria-selected="false">고정<span class="n" id="cntPinned">0</span></button>
-          <button class="tab" id="tabRecent" role="tab" data-tab="recent"  aria-selected="true">최근<span class="n" id="cntRecent">0</span></button>
-        </div>
-        <div class="chips" id="chips"></div>
-      </div>
-
+      <div class="saved" id="saved"></div>
       <div class="charresult" id="charResult"></div>
     </div>
   </header>
@@ -296,8 +280,8 @@ const 캐릭터검색사이트 = [
 ];
 
 /* 보관 개수. 숫자만 바꾸면 됩니다. */
-const 최근보관개수 = 5;    // 최근 탭에 남길 개수
-const 고정보관개수 = 10;   // 고정 탭에 넣을 수 있는 최대 개수
+const 최근보관개수 = 5;    // 아래쪽 최근 줄에 남길 개수
+const 고정보관개수 = 10;   // 위쪽 고정 줄에 올릴 수 있는 최대 개수
 
 
 /* ===================================================================
@@ -360,14 +344,7 @@ const $charInput  = document.getElementById('charInput');
 const $charBtn    = document.getElementById('charBtn');
 const $charResult = document.getElementById('charResult');
 const $saved      = document.getElementById('saved');
-const $chips      = document.getElementById('chips');
-const $tabPinned  = document.getElementById('tabPinned');
-const $tabRecent  = document.getElementById('tabRecent');
-const $cntPinned  = document.getElementById('cntPinned');
-const $cntRecent  = document.getElementById('cntRecent');
 const $results    = document.getElementById('results');
-
-let 현재탭 = 'recent';   // 'pinned' 또는 'recent'
 
 // HTML에 그대로 넣어도 안전하게 문자 변환
 function 안전하게(글자){
@@ -446,37 +423,14 @@ function 전체삭제(구분){
 }
 
 
-/* ---------- 보관함 화면 그리기 ---------- */
+/* ---------- 보관함 화면 그리기 (위: 고정 / 아래: 최근) ---------- */
 
-function 보관함그리기(){
-  const 고정 = 불러오기('pinned');
-  const 최근 = 불러오기('recent');
-
-  $cntPinned.textContent = 고정.length;
-  $cntRecent.textContent = 최근.length;
-
-  // 둘 다 비어 있으면 영역 자체를 감춤
-  if (고정.length === 0 && 최근.length === 0){
-    $saved.classList.add('hidden');
-    return;
-  }
-  $saved.classList.remove('hidden');
-
-  // 고정이 비었는데 고정 탭을 보고 있으면 최근 탭으로 돌려놓기
-  if (현재탭 === 'pinned' && 고정.length === 0) 현재탭 = 'recent';
-
-  $tabPinned.setAttribute('aria-selected', 현재탭 === 'pinned');
-  $tabRecent.setAttribute('aria-selected', 현재탭 === 'recent');
-
-  const 목록 = 현재탭 === 'pinned' ? 고정 : 최근;
-
-  if (목록.length === 0){
-    $chips.innerHTML = `<span class="none">아직 없습니다. 최근 탭에서 ★를 눌러 고정해 보세요.</span>`;
-    return;
-  }
+// 줄 하나를 만드는 함수
+function 줄만들기(구분, 라벨, 목록, 고정목록, 전체삭제문구){
+  if (목록.length === 0) return '';
 
   const 알약들 = 목록.map(닉 => {
-    const 고정됨 = 고정.includes(닉);
+    const 고정됨 = 고정목록.includes(닉);
     const 안전한닉 = 안전하게(닉);
     return `
       <span class="chip${고정됨 ? ' pinned' : ''}">
@@ -484,42 +438,52 @@ function 보관함그리기(){
                 title="${고정됨 ? '고정 해제' : '고정하기'}" aria-label="${안전한닉} ${고정됨 ? '고정 해제' : '고정하기'}">${고정됨 ? '★' : '☆'}</button>
         <button type="button" class="name" data-name="${안전한닉}"
                 title="${안전한닉} 검색">${안전한닉}</button>
-        <button type="button" class="del" data-del="${안전한닉}"
-                title="목록에서 삭제" aria-label="${안전한닉} 삭제">✕</button>
+        <button type="button" class="del" data-del="${안전한닉}" data-list="${구분}"
+                title="이 줄에서 삭제" aria-label="${안전한닉} 삭제">✕</button>
       </span>`;
   }).join('');
 
-  $chips.innerHTML = 알약들 +
-    `<button type="button" class="clearall" id="clearAll">${현재탭 === 'pinned' ? '고정 전체 해제' : '최근 기록 지우기'}</button>`;
+  return `
+    <div class="sline ${구분 === 'pinned' ? 'pin' : ''}">
+      <div class="slabel">${라벨}</div>
+      <div class="chips">
+        ${알약들}
+        <button type="button" class="clearall" data-clear="${구분}">${전체삭제문구}</button>
+      </div>
+    </div>`;
+}
+
+function 보관함그리기(){
+  const 고정 = 불러오기('pinned');
+  const 최근 = 불러오기('recent');
+
+  $saved.innerHTML =
+    줄만들기('pinned', '고정', 고정, 고정, '전체 해제') +
+    줄만들기('recent', '최근', 최근, 고정, '지우기');
 
   // ★ : 고정 / 해제
-  $chips.querySelectorAll('.star').forEach(버튼 => {
+  $saved.querySelectorAll('.star').forEach(버튼 => {
     버튼.onclick = () => 고정토글(버튼.dataset.star);
   });
 
   // 닉네임 : 다시 검색
-  $chips.querySelectorAll('.name').forEach(버튼 => {
+  $saved.querySelectorAll('.name').forEach(버튼 => {
     버튼.onclick = () => {
       $charInput.value = 버튼.dataset.name;
       캐릭터검색();
     };
   });
 
-  // ✕ : 지금 보고 있는 탭에서만 삭제
-  $chips.querySelectorAll('.del').forEach(버튼 => {
-    버튼.onclick = () => 삭제(현재탭, 버튼.dataset.del);
+  // ✕ : 그 줄에서만 삭제
+  $saved.querySelectorAll('.del').forEach(버튼 => {
+    버튼.onclick = () => 삭제(버튼.dataset.list, 버튼.dataset.del);
   });
 
-  document.getElementById('clearAll').onclick = () => 전체삭제(현재탭);
+  // 줄 전체 비우기
+  $saved.querySelectorAll('.clearall').forEach(버튼 => {
+    버튼.onclick = () => 전체삭제(버튼.dataset.clear);
+  });
 }
-
-// 탭 전환
-[$tabPinned, $tabRecent].forEach(탭 => {
-  탭.onclick = () => {
-    현재탭 = 탭.dataset.tab;
-    보관함그리기();
-  };
-});
 
 
 /* ---------- 캐릭터 검색 ---------- */
@@ -606,8 +570,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 첫 화면 그리기 — 고정된 게 있으면 고정 탭부터 보여주기
-if (불러오기('pinned').length > 0) 현재탭 = 'pinned';
+// 첫 화면 그리기
 보관함그리기();
 도구그리기();
 $charInput.focus();
