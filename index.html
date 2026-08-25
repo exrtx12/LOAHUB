@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로아모아 — 흩어진 로스트아크 도구를 한 곳에</title>
+<meta name="description" content="로스트아크 유저 사이트들의 기능을 기능 단위로 모아둔 인덱스입니다.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+/* ===================================================================
+   색상 / 폰트 설정. 여기 값만 바꿔도 사이트 분위기가 전부 바뀝니다.
+   =================================================================== */
+:root{
+  --ink:        #14121b;   /* 배경 */
+  --panel:      #1c1926;   /* 카드 배경 */
+  --panel-hi:   #242031;   /* 카드 마우스 올렸을 때 */
+  --line:       #302c40;   /* 얇은 경계선 */
+  --gold:       #d8b45c;   /* 강조색 (금색) */
+  --gold-dim:   #8d7538;
+  --arc:        #7be0d0;   /* 포커스 링 (아크 빛) */
+  --text:       #ede9f5;
+  --muted:      #8b849e;
+
+  --display: 'Gowun Batang', serif;
+  --body: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* 배경에 아주 옅은 빛무리 하나 */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(900px 500px at 50% -15%, rgba(216,180,92,.10), transparent 70%);
+}
+
+.wrap{ position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 24px; }
+
+/* ---------- 상단 헤더 ---------- */
+.masthead{ padding:72px 0 36px; }
+
+.wordmark{
+  font-family:var(--display); font-weight:700;
+  font-size:clamp(38px, 7vw, 62px); line-height:1.05;
+  letter-spacing:-.02em;
+}
+.wordmark em{ font-style:normal; color:var(--gold); }
+
+.tagline{
+  margin-top:14px; max-width:46ch;
+  color:var(--muted); font-size:15px;
+}
+
+/* ---------- 출처 사이트 요약 (이 페이지의 핵심 장치) ---------- */
+.sources{
+  margin-top:34px; padding-top:22px;
+  border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+.src{
+  display:inline-flex; align-items:baseline; gap:8px;
+  padding:7px 13px;
+  background:transparent; color:var(--muted);
+  border:1px solid var(--line); border-radius:999px;
+  font-family:var(--body); font-size:13px; cursor:pointer;
+  transition:border-color .15s, color .15s, background .15s;
+}
+.src .n{ font-family:var(--mono); font-size:11px; color:var(--gold-dim); }
+.src:hover{ color:var(--text); border-color:var(--gold-dim); }
+.src[aria-pressed="true"]{
+  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:600;
+}
+.src[aria-pressed="true"] .n{ color:rgba(20,18,27,.6); }
+
+/* ---------- 검색창 ---------- */
+.searchbar{ position:sticky; top:0; z-index:5; padding:18px 0 14px; background:var(--ink); }
+.searchbar::after{
+  content:''; position:absolute; left:24px; right:24px; bottom:0; height:1px; background:var(--line);
+}
+.searchbar input{
+  width:100%; padding:14px 16px;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:10px;
+  font-family:var(--body); font-size:15px;
+}
+.searchbar input::placeholder{ color:var(--muted); }
+.searchbar input:focus{ outline:none; border-color:var(--gold-dim); }
+
+/* ---------- 기능 목록 ---------- */
+.group{ padding:38px 0 4px; }
+
+.group-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:18px; }
+.group-head h2{
+  font-family:var(--display); font-weight:700; font-size:20px; letter-spacing:.01em;
+}
+.group-head .rule{ flex:1; height:1px; background:var(--line); }
+.group-head .count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(248px,1fr)); gap:12px; }
+
+.card{
+  display:block; position:relative;
+  padding:18px 18px 16px;
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  color:inherit; text-decoration:none;
+  transition:background .16s, border-color .16s, transform .16s;
+}
+.card::before{
+  content:''; position:absolute; left:0; top:16px; bottom:16px; width:2px;
+  background:var(--gold); border-radius:2px;
+  opacity:0; transition:opacity .16s;
+}
+.card:hover{ background:var(--panel-hi); border-color:var(--gold-dim); transform:translateY(-2px); }
+.card:hover::before{ opacity:1; }
+.card:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
+
+.card .title{ font-size:15.5px; font-weight:600; letter-spacing:-.01em; }
+.card .desc{ margin-top:6px; font-size:13px; color:var(--muted); line-height:1.55; }
+.card .from{
+  margin-top:13px; padding-top:11px; border-top:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.card .site{ font-size:12.5px; color:var(--gold); }
+.card .domain{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }
+
+/* ---------- 결과 없음 / 푸터 ---------- */
+.empty{ padding:60px 0; text-align:center; color:var(--muted); font-size:14px; }
+.empty b{ color:var(--text); font-weight:600; }
+
+footer{
+  margin-top:64px; padding:28px 0 60px;
+  border-top:1px solid var(--line);
+  color:var(--muted); font-size:12.5px; line-height:1.75;
+}
+
+@media (max-width:640px){
+  .masthead{ padding:48px 0 28px; }
+  .grid{ grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <h1 class="wordmark">로아<em>모아</em></h1>
+    <p class="tagline">사이트가 아니라 <b>기능</b>으로 찾습니다. 어느 사이트에 뭐가 있는지 외울 필요 없이, 하고 싶은 일을 고르세요.</p>
+    <div class="sources" id="sources"></div>
+  </header>
+
+  <div class="searchbar">
+    <input type="search" id="search" placeholder="무엇을 하려고 하시나요?  예: 시세, 재련, 모험 섬" autocomplete="off">
+  </div>
+
+  <main id="results"></main>
+
+  <footer>
+    로아모아는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, 로아모아는 해당 사이트들과 아무 관계가 없습니다.<br>
+    로스트아크의 저작권은 Smilegate RPG에 있습니다.
+  </footer>
+
+</div>
+
+<script>
+/* ===================================================================
+   ★★★ 앞으로 수정할 곳은 거의 여기뿐입니다 ★★★
+
+   기능 하나 = 아래 목록의 한 줄.
+   새 기능을 추가하려면 줄 하나를 복사해서 붙여넣고 내용만 바꾸세요.
+   쉼표(,)와 따옴표(")를 빠뜨리지 않도록 주의하세요.
+
+   기능  : 카드에 크게 뜨는 이름
+   설명  : 그 밑에 작게 뜨는 한 줄 설명
+   사이트: 어느 사이트 기능인지
+   주소  : 클릭했을 때 갈 링크 (구체적인 페이지 주소일수록 좋습니다)
+   분류  : 같은 분류끼리 묶여서 표시됩니다
+   =================================================================== */
+
+const 기능목록 = [
+
+  /* ---------- 캐릭터 · 랭킹 ---------- */
+  { 기능:"캐릭터 검색",          설명:"전투 정보실 조회. 빠르고 즐겨찾기 지원", 사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
+  { 기능:"캐릭터 검색",          설명:"정보 카드 이미지로 저장하는 기능이 있음", 사이트:"로아와", 주소:"https://loawa.com/", 분류:"캐릭터 · 랭킹" },
+  { 기능:"전투력 · 아이템 레벨 랭킹", 설명:"서버별 상위 랭킹 확인",              사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
+  { 기능:"내실 랭킹",            설명:"카드, 각인, 수집품 등 내실 순위",        사이트:"클로아", 주소:"https://kloa.gg/",   분류:"캐릭터 · 랭킹" },
+
+  /* ---------- 스펙 · 환산 ---------- */
+  { 기능:"환산 점수",            설명:"캐릭터 스펙을 점수로 수치화",            사이트:"로펙",   주소:"https://lopec.kr/",  분류:"스펙 · 환산" },
+  { 기능:"환산 랭킹 · 티어컷",   설명:"에스더 / 그랜드마스터 등 구간 확인",     사이트:"로펙",   주소:"https://lopec.kr/",  분류:"스펙 · 환산" },
+  { 기능:"스펙업 시뮬레이터",    설명:"장비를 바꿔보며 점수 변화 비교",         사이트:"로펙",   주소:"https://lopec.kr/",  분류:"스펙 · 환산" },
+
+  /* ---------- 시세 · 골드 ---------- */
+  { 기능:"유물 각인서 시세",     설명:"실시간 최저가와 전일 대비 등락률",       사이트:"로아랩", 주소:"https://lo4.app/markets/inscriptions", 분류:"시세 · 골드" },
+  { 기능:"각인서 시세 차트",     설명:"기간별 가격 흐름을 그래프로",            사이트:"클로아", 주소:"https://kloa.gg/",   분류:"시세 · 골드" },
+  { 기능:"보조 재료 실제 가치",  설명:"특수 재료 효율을 한눈에 비교",           사이트:"로아또", 주소:"https://loatto.kr/",  분류:"시세 · 골드" },
+
+  /* ---------- 시뮬레이터 · 확률 ---------- */
+  { 기능:"젬파고",               설명:"아크 그리드 젬 조합 시뮬레이터",         사이트:"로아또", 주소:"https://loatto.kr/gempago", 분류:"시뮬레이터 · 확률" },
+  { 기능:"돌파고",               설명:"게임 화면을 인식해 자동으로 계산",       사이트:"로아또", 주소:"https://loatto.kr/",  분류:"시뮬레이터 · 확률" },
+  { 기능:"재련 최적화",          설명:"목표 단계까지 기댓값 계산",              사이트:"로아또", 주소:"https://loatto.kr/",  분류:"시뮬레이터 · 확률" },
+  { 기능:"재련 최적화",          설명:"실시간 시세를 반영한 비용 분석",         사이트:"로아랩", 주소:"https://lo4.app/",    분류:"시뮬레이터 · 확률" },
+  { 기능:"지옥 · 나락 보상 효율", 설명:"입장료 대비 기대 보상 계산",            사이트:"로아또", 주소:"https://loatto.kr/",  분류:"시뮬레이터 · 확률" },
+
+  /* ---------- 생활 · 제작 ---------- */
+  { 기능:"아비도스 쌀산기",      설명:"재료값 넣으면 제작 수익 계산",           사이트:"로아랩", 주소:"https://lo4.app/tools/item-craft", 분류:"생활 · 제작" },
+
+  /* ---------- 일정 · 컨텐츠 ---------- */
+  { 기능:"모험 섬",              설명:"오늘의 모험 섬과 보상",                  사이트:"로아와", 주소:"https://loawa.com/", 분류:"일정 · 컨텐츠" },
+  { 기능:"주간 일정표",          설명:"이번 주 컨텐츠 캘린더",                  사이트:"로아와", 주소:"https://loawa.com/", 분류:"일정 · 컨텐츠" },
+  { 기능:"카오스게이트 · 필드보스", 설명:"등장 시간과 위치",                     사이트:"로아와", 주소:"https://loawa.com/", 분류:"일정 · 컨텐츠" },
+  { 기능:"떠돌이 상인",          설명:"현재 뜬 상인 위치와 판매 목록",          사이트:"클로아", 주소:"https://kloa.gg/",   분류:"일정 · 컨텐츠" },
+
+];
+
+/* 분류를 화면에 보여줄 순서. 위에서 새 분류를 만들었다면 여기에도 추가하세요. */
+const 분류순서 = ["캐릭터 · 랭킹", "스펙 · 환산", "시세 · 골드", "시뮬레이터 · 확률", "생활 · 제작", "일정 · 컨텐츠"];
+
+
+/* ===================================================================
+   아래는 화면을 그리는 코드입니다. 당장은 건드리지 않아도 됩니다.
+   =================================================================== */
+
+const $results = document.getElementById('results');
+const $sources = document.getElementById('sources');
+const $search  = document.getElementById('search');
+
+let 선택된사이트 = null;   // 사이트 버튼을 눌러 걸러낸 상태
+let 검색어 = '';
+
+// 주소에서 도메인만 뽑아내기 (예: https://kloa.gg/ → kloa.gg)
+function 도메인(주소){
+  return 주소.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+}
+
+// HTML에 그대로 넣어도 안전하게 문자 변환
+function 안전하게(글자){
+  return String(글자).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+// 상단의 사이트별 개수 버튼 만들기
+function 사이트버튼그리기(){
+  const 개수 = {};
+  기능목록.forEach(t => { 개수[t.사이트] = (개수[t.사이트] || 0) + 1; });
+
+  $sources.innerHTML = Object.entries(개수)
+    .sort((a,b) => b[1] - a[1])
+    .map(([이름, n]) => `
+      <button class="src" data-site="${안전하게(이름)}" aria-pressed="${선택된사이트 === 이름}">
+        ${안전하게(이름)} <span class="n">${n}</span>
+      </button>`)
+    .join('');
+
+  $sources.querySelectorAll('.src').forEach(버튼 => {
+    버튼.onclick = () => {
+      const 이름 = 버튼.dataset.site;
+      선택된사이트 = (선택된사이트 === 이름) ? null : 이름;   // 한 번 더 누르면 해제
+      사이트버튼그리기();
+      목록그리기();
+    };
+  });
+}
+
+// 조건에 맞는 기능만 골라내기
+function 걸러내기(){
+  const q = 검색어.trim().toLowerCase();
+  return 기능목록.filter(t => {
+    if (선택된사이트 && t.사이트 !== 선택된사이트) return false;
+    if (!q) return true;
+    return (t.기능 + t.설명 + t.사이트 + t.분류).toLowerCase().includes(q);
+  });
+}
+
+// 기능 카드 목록 그리기
+function 목록그리기(){
+  const 보여줄것 = 걸러내기();
+
+  if (보여줄것.length === 0){
+    $results.innerHTML = `<p class="empty">찾는 기능이 없습니다.<br>다른 단어로 검색하거나, <b>기능목록</b>에 직접 추가해 보세요.</p>`;
+    return;
+  }
+
+  // 분류순서에 있는 것부터, 없는 분류는 뒤에 붙이기
+  const 모든분류 = [...분류순서, ...new Set(보여줄것.map(t => t.분류))]
+    .filter((v,i,a) => a.indexOf(v) === i);
+
+  $results.innerHTML = 모든분류.map(분류 => {
+    const 항목들 = 보여줄것.filter(t => t.분류 === 분류);
+    if (항목들.length === 0) return '';
+
+    const 카드들 = 항목들.map(t => `
+      <a class="card" href="${안전하게(t.주소)}" target="_blank" rel="noopener noreferrer">
+        <div class="title">${안전하게(t.기능)}</div>
+        <div class="desc">${안전하게(t.설명)}</div>
+        <div class="from">
+          <span class="site">${안전하게(t.사이트)}</span>
+          <span class="domain">${안전하게(도메인(t.주소))}</span>
+        </div>
+      </a>`).join('');
+
+    return `
+      <section class="group">
+        <div class="group-head">
+          <h2>${안전하게(분류)}</h2>
+          <span class="rule"></span>
+          <span class="count">${항목들.length}</span>
+        </div>
+        <div class="grid">${카드들}</div>
+      </section>`;
+  }).join('');
+}
+
+// 검색창에 글자를 칠 때마다 다시 그리기
+$search.addEventListener('input', e => {
+  검색어 = e.target.value;
+  목록그리기();
+});
+
+// 키보드에서 / 를 누르면 검색창으로 이동
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== $search){
+    e.preventDefault();
+    $search.focus();
+  }
+});
+
+// 첫 화면 그리기
+사이트버튼그리기();
+목록그리기();
+</script>
+</body>
+</html>
