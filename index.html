@@ -293,11 +293,39 @@ body::before{
   background:rgba(255,255,255,.05);
 }
 
+/* 광고 영역
+   PC 넓은 화면에서는 본문 양옆에 세로 광고, 좁은 화면에서는 하단 가로 광고 */
+.adzone{
+  margin-top:52px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.adzone:empty{ display:none; }
+
+.adrail{
+  position:fixed; top:50%; transform:translateY(-50%);
+  z-index:4; display:none;
+  flex-direction:column; align-items:center; gap:6px;
+}
+/* 본문(최대 1080px) 바깥쪽에 딱 붙여 배치 */
+.adrail.left { right:calc(50% + 548px); }
+.adrail.right{ left:calc(50% + 548px); }
+
+/* 양옆 광고를 놓을 공간이 확보되는 폭에서만 표시 */
+@media (min-width:1480px){
+  .adrail{ display:flex; }
+}
+
+.adlabel{
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:#5c5670;
+}
+
 footer{
-  margin-top:64px; padding:28px 0 60px;
+  margin-top:44px; padding:28px 0 60px;
   border-top:1px solid var(--line);
   color:var(--muted); font-size:12.5px; line-height:1.75;
 }
+footer a{ color:var(--muted); text-decoration:underline; text-underline-offset:3px; }
+footer a:hover{ color:var(--gold); }
 
 @media (max-width:640px){
   .masthead{ padding:44px 0 0; }
@@ -314,6 +342,11 @@ footer{
 </head>
 
 <body>
+
+<!-- PC 넓은 화면에서만 나타나는 양옆 세로 광고 자리 -->
+<aside class="adrail left"  id="adLeft"  aria-hidden="true"></aside>
+<aside class="adrail right" id="adRight" aria-hidden="true"></aside>
+
 <div class="wrap">
 
   <header class="masthead">
@@ -343,9 +376,11 @@ footer{
     <div id="results"></div>
   </section>
 
+  <div class="adzone" id="adBottom"></div>
+
   <footer>
     LOAHUB는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, LOAHUB는 해당 사이트들과 아무 관계가 없습니다.<br>
-    고정 및 최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다.<br>
+    고정 및 최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다. <a href="/privacy.html">개인정보처리방침</a><br>
     로스트아크의 저작권은 Smilegate RPG에 있습니다. 본문 글꼴은 Noto Sans KR (SIL Open Font License 1.1)을 사용합니다.
   </footer>
 
@@ -759,6 +794,64 @@ document.addEventListener('keydown', e => {
 보관함그리기();
 도구그리기();
 $charInput.focus();
+</script>
+
+<!-- ===================================================================
+     광고 (카카오 애드핏)
+
+     애드핏에서 광고단위를 만들면 DAN- 으로 시작하는 ID를 줍니다.
+     아래 세 자리에 각각 넣으세요. 광고단위는 3개를 따로 만들어야 합니다.
+
+       좌측 / 우측 : 160 x 600  (와이드 스카이스크래퍼)
+       하단        : 300 x 250  (좁은 화면용)
+
+     화면이 좁으면 좌우 광고는 아예 불러오지 않습니다.
+     보이지 않는 광고를 미리 불러오면 무효 노출로 제재를 받을 수 있어서입니다.
+     =================================================================== -->
+<script>
+(function(){
+
+  var 광고단위 = {
+    좌측: "DAN-좌측광고단위ID",
+    우측: "DAN-우측광고단위ID",
+    하단: "DAN-하단광고단위ID"
+  };
+
+  // 양옆에 광고를 놓을 공간이 생기는 최소 화면 폭 (CSS와 같은 값이어야 합니다)
+  var 양옆최소폭 = 1480;
+
+  function 광고넣기(자리, 단위, 가로, 세로){
+    if (!자리 || !단위 || 단위.indexOf("여기에") !== -1) return;
+
+    var 라벨 = document.createElement('span');
+    라벨.className = 'adlabel';
+    라벨.textContent = 'AD';
+
+    var ins = document.createElement('ins');
+    ins.className = 'kakao_ad_area';
+    ins.style.display = 'none';
+    ins.setAttribute('data-ad-unit', 단위);
+    ins.setAttribute('data-ad-width', 가로);
+    ins.setAttribute('data-ad-height', 세로);
+
+    자리.appendChild(라벨);
+    자리.appendChild(ins);
+  }
+
+  if (window.innerWidth >= 양옆최소폭){
+    광고넣기(document.getElementById('adLeft'),  광고단위.좌측, 160, 600);
+    광고넣기(document.getElementById('adRight'), 광고단위.우측, 160, 600);
+  } else {
+    광고넣기(document.getElementById('adBottom'), 광고단위.하단, 300, 250);
+  }
+
+  // 광고 자리를 만든 뒤에 애드핏 스크립트를 불러옵니다
+  var s = document.createElement('script');
+  s.src = '//t1.daumcdn.net/kas/static/ba.min.js';
+  s.async = true;
+  document.body.appendChild(s);
+
+})();
 </script>
 
 <!-- Cloudflare Web Analytics — 쿠키를 쓰지 않는 방문자 통계 -->
