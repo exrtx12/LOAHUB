@@ -188,6 +188,14 @@ footer{
 
 <script>
 (function(){
+
+  /* ★ 광고 스위치 ★
+     false = 광고 끔  |  true = 광고 켬
+     메인 페이지(index.html)의 스위치도 함께 바꿔주세요. */
+  var 광고표시 = false;
+
+  if (!광고표시) return;
+
   var 자리 = document.getElementById('adBottom');
   if (!자리) return;
 
