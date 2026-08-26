@@ -185,7 +185,55 @@ body::before{
 
 /* ---------- 도구 모음 ---------- */
 .toolszone{ margin-top:60px; padding-top:32px; border-top:1px solid var(--line); }
+
+.zonebar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .zonehead{ font-size:13px; font-weight:700; letter-spacing:.08em; color:var(--muted); }
+
+/* 기능별 / 사이트별 전환 */
+.viewtoggle{
+  display:flex; gap:2px;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:9px; padding:2px;
+}
+.vbtn{
+  padding:5px 13px;
+  background:none; border:none; border-radius:7px;
+  color:var(--muted); font-family:var(--body); font-size:12.5px;
+  cursor:pointer; transition:background .15s, color .15s;
+}
+.vbtn:hover{ color:var(--text); }
+.vbtn[aria-pressed="true"]{ background:var(--gold); color:#14121b; font-weight:700; }
+.vbtn:focus-visible{ outline:2px solid var(--arc); outline-offset:-2px; }
+
+/* 사이트별 보기
+   grid-auto-rows:1fr 이 모든 패널 높이를 가장 큰 패널에 맞춰줍니다 */
+.sitegrid{
+  margin-top:26px;
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(258px,1fr));
+  gap:12px; grid-auto-rows:1fr;
+}
+.sitepanel{
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:12px; padding:15px 16px 9px;
+  display:flex; flex-direction:column;
+}
+.sitepanel .head{ display:flex; align-items:center; gap:9px; }
+.sitepanel .head .nm{ color:var(--gold); font-size:15px; font-weight:700; }
+.sitepanel .head .cnt{
+  margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--muted);
+}
+.sitepanel .dom{ margin:5px 0 11px; font-family:var(--mono); font-size:10.5px; color:var(--muted); }
+
+.srow{
+  display:block; padding:8px 0;
+  border-top:1px solid var(--line);
+  color:inherit; text-decoration:none;
+}
+.srow:last-child{ margin-bottom:6px; }
+.srow .t{ font-size:13px; font-weight:500; transition:color .15s; }
+.srow .d{ margin-top:2px; font-size:11.5px; color:var(--muted); line-height:1.5; }
+.srow:hover .t{ color:var(--gold); }
+.srow:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; border-radius:4px; }
 
 .group{ padding:32px 0 4px; }
 
@@ -239,6 +287,7 @@ footer{
   .charsearch .go{ padding:14px 26px; }
   .slabel{ width:26px; font-size:10px; }
   .grid{ grid-template-columns:1fr; }
+  .sitegrid{ grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion:reduce){
   *{ transition:none !important; }
@@ -266,7 +315,13 @@ footer{
   </header>
 
   <section class="toolszone">
-    <h2 class="zonehead">도구 모음</h2>
+    <div class="zonebar">
+      <h2 class="zonehead">도구 모음</h2>
+      <div class="viewtoggle" role="group" aria-label="도구 정렬 방식">
+        <button class="vbtn" id="viewFeature" data-view="feature" aria-pressed="true">기능별</button>
+        <button class="vbtn" id="viewSite"    data-view="site"    aria-pressed="false">사이트별</button>
+      </div>
+    </div>
     <div id="results"></div>
   </section>
 
@@ -350,12 +405,24 @@ const 기능목록 = [
 
 ];
 
-/* 분류가 화면에 나오는 순서 */
+/* 분류가 화면에 나오는 순서 (기능별 보기) */
 const 분류순서 = [
   "일정 · 컨텐츠",
   "스펙업 · 효율 계산",
   "확률 시뮬레이터",
   "시세 · 수익",
+];
+
+/* 사이트가 화면에 나오는 순서 (사이트별 보기)
+   여기 없는 사이트는 자동으로 맨 뒤에 붙습니다. */
+const 사이트순서 = [
+  "클로아",
+  "로펙",
+  "로아와",
+  "로아랩",
+  "로아또",
+  "로아업",
+  "로아차트",
 ];
 
 
@@ -368,6 +435,8 @@ const $charBtn    = document.getElementById('charBtn');
 const $charResult = document.getElementById('charResult');
 const $saved      = document.getElementById('saved');
 const $results    = document.getElementById('results');
+const $viewFeature = document.getElementById('viewFeature');
+const $viewSite    = document.getElementById('viewSite');
 
 // HTML에 그대로 넣어도 안전하게 문자 변환
 function 안전하게(글자){
@@ -423,6 +492,20 @@ function 저장하기(구분, 목록){
   임시보관[구분] = 목록;
   if (!저장가능) return;
   try { localStorage.setItem(키[구분], JSON.stringify(목록)); } catch (e) {}
+}
+
+// 기능별 / 사이트별 중 어느 쪽을 보고 있었는지 기억
+let 임시보기 = '기능별';
+
+function 보기불러오기(){
+  if (!저장가능) return 임시보기;
+  try { return localStorage.getItem('loahub.view') || '기능별'; } catch (e) { return '기능별'; }
+}
+
+function 보기저장(값){
+  임시보기 = 값;
+  if (!저장가능) return;
+  try { localStorage.setItem('loahub.view', 값); } catch (e) {}
 }
 
 // 최근 목록 맨 앞에 추가 (중복이면 앞으로 끌어올림)
@@ -566,7 +649,10 @@ $charInput.addEventListener('input', () => {
 
 /* ---------- 도구 모음 ---------- */
 
-function 도구그리기(){
+let 현재보기 = '기능별';   // '기능별' 또는 '사이트별'
+
+// 기능별 보기 — 분류로 묶어서 카드로 표시
+function 기능별그리기(){
   const 모든분류 = [...분류순서, ...new Set(기능목록.map(t => t.분류))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
@@ -596,6 +682,51 @@ function 도구그리기(){
   }).join('');
 }
 
+// 사이트별 보기 — 사이트로 묶어서 패널로 표시
+function 사이트별그리기(){
+  const 모든사이트 = [...사이트순서, ...new Set(기능목록.map(t => t.사이트))]
+    .filter((v,i,a) => a.indexOf(v) === i);
+
+  $results.innerHTML = `<div class="sitegrid">` + 모든사이트.map(사이트 => {
+    const 항목들 = 기능목록.filter(t => t.사이트 === 사이트);
+    if (항목들.length === 0) return '';
+
+    const 줄들 = 항목들.map(t => `
+      <a class="srow" href="${안전하게(t.주소)}" target="_blank" rel="noopener noreferrer">
+        <div class="t">${안전하게(t.기능)}</div>
+        <div class="d">${안전하게(t.설명)}</div>
+      </a>`).join('');
+
+    return `
+      <section class="sitepanel">
+        <div class="head">
+          ${로고태그(사이트, 항목들[0].주소)}
+          <span class="nm">${안전하게(사이트)}</span>
+          <span class="cnt">${항목들.length}</span>
+        </div>
+        <div class="dom">${안전하게(도메인(항목들[0].주소))}</div>
+        ${줄들}
+      </section>`;
+  }).join('') + `</div>`;
+}
+
+function 도구그리기(){
+  $viewFeature.setAttribute('aria-pressed', 현재보기 === '기능별');
+  $viewSite.setAttribute('aria-pressed', 현재보기 === '사이트별');
+
+  if (현재보기 === '사이트별') 사이트별그리기();
+  else 기능별그리기();
+}
+
+// 전환 버튼을 누르면 보기 방식을 바꾸고 기억해둠
+[$viewFeature, $viewSite].forEach(버튼 => {
+  버튼.onclick = () => {
+    현재보기 = (버튼.dataset.view === 'site') ? '사이트별' : '기능별';
+    보기저장(현재보기);
+    도구그리기();
+  };
+});
+
 // 키보드에서 / 를 누르면 캐릭터 검색창으로 이동
 document.addEventListener('keydown', e => {
   const 입력중 = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
@@ -606,6 +737,7 @@ document.addEventListener('keydown', e => {
 });
 
 // 첫 화면 그리기
+현재보기 = 보기불러오기();
 보관함그리기();
 도구그리기();
 $charInput.focus();
