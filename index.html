@@ -327,6 +327,10 @@ footer{
 footer a{ color:var(--muted); text-decoration:underline; text-underline-offset:3px; }
 footer a:hover{ color:var(--gold); }
 
+/* 안내문과 구분되도록 한 칸 띄운 별도 줄 */
+.footlinks{ margin-top:16px; }
+.footlinks a{ font-size:13px; }
+
 @media (max-width:640px){
   .masthead{ padding:44px 0 0; }
   .charsearch .row{ flex-direction:column; }
@@ -380,8 +384,9 @@ footer a:hover{ color:var(--gold); }
 
   <footer>
     LOAHUB는 개인이 만든 링크 모음집입니다. 각 기능은 원 사이트로 연결되며, LOAHUB는 해당 사이트들과 아무 관계가 없습니다.<br>
-    고정 및 최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다. <a href="/privacy.html">개인정보처리방침</a><br>
+    고정 및 최근 검색 기록은 서버로 전송되지 않고 이 브라우저에만 저장됩니다.<br>
     로스트아크의 저작권은 Smilegate RPG에 있습니다. 본문 글꼴은 Noto Sans KR (SIL Open Font License 1.1)을 사용합니다.
+    <div class="footlinks"><a href="/privacy.html">개인정보처리방침</a></div>
   </footer>
 
 </div>
