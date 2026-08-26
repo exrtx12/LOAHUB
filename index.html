@@ -306,9 +306,11 @@ body::before{
   z-index:4; display:none;
   flex-direction:column; align-items:center; gap:6px;
 }
-/* 본문(최대 1080px) 바깥쪽에 딱 붙여 배치 */
-.adrail.left { right:calc(50% + 548px); }
-.adrail.right{ left:calc(50% + 548px); }
+/* 본문(최대 1080px) 바깥 여백의 정중앙에 배치
+   여백 = 화면 절반 - 본문 절반(540px)
+   그 여백의 가운데에서 광고 폭의 절반(80px)만큼 당기면 정중앙에 놓입니다 */
+.adrail.left { left:calc(25% - 350px); }
+.adrail.right{ right:calc(25% - 350px); }
 
 /* 양옆 광고를 놓을 공간이 확보되는 폭에서만 표시 */
 @media (min-width:1480px){
@@ -855,6 +857,32 @@ $charInput.focus();
   s.src = '//t1.daumcdn.net/kas/static/ba.min.js';
   s.async = true;
   document.body.appendChild(s);
+
+  // 광고가 채워지지 않은 자리는 AD 글씨만 덩그러니 남으므로 숨깁니다.
+  // 광고가 늦게 도착할 수도 있어서 몇 초간 지켜본 뒤 판단합니다.
+  var 확인횟수 = 0;
+  var 지켜보기 = setInterval(function(){
+    확인횟수++;
+
+    var 남은자리 = 0;
+    ['adLeft','adRight','adBottom'].forEach(function(id){
+      var 자리 = document.getElementById(id);
+      if (!자리 || 자리.dataset.정리됨) return;
+
+      var ins = 자리.querySelector('ins.kakao_ad_area');
+
+      if (ins && ins.offsetHeight > 10){
+        자리.dataset.정리됨 = '광고있음';   // 광고가 들어왔으니 그대로 둠
+      } else if (확인횟수 >= 8){
+        자리.style.display = 'none';        // 8초가 지나도 비어 있으면 숨김
+        자리.dataset.정리됨 = '숨김';
+      } else {
+        남은자리++;
+      }
+    });
+
+    if (남은자리 === 0 || 확인횟수 >= 8) clearInterval(지켜보기);
+  }, 1000);
 
 })();
 </script>
