@@ -248,7 +248,7 @@ body::before{
   color:inherit; text-decoration:none;
 }
 .srow:last-child{ margin-bottom:6px; }
-.srow .t{ font-size:13px; font-weight:500; transition:color .15s; }
+.srow .t{ font-size:13px; font-weight:500; transition:color .15s; padding-right:26px; }
 .srow .d{ margin-top:2px; font-size:11.5px; color:var(--muted); line-height:1.5; }
 .srow:hover .t{ color:var(--gold); }
 .srow:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; border-radius:4px; }
@@ -261,6 +261,22 @@ body::before{
 .group-head .count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
 
 .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(248px,1fr)); gap:12px; }
+
+/* 즐겨찾기 별 버튼 (카드 · 사이트별 줄 공용) */
+.cardwrap{ position:relative; }
+.fav{
+  position:absolute; z-index:2;
+  background:none; border:none; border-radius:6px;
+  color:#4e4862; font-family:var(--body); font-size:14px; line-height:1;
+  cursor:pointer; transition:color .15s, background .15s;
+}
+.fav:hover{ color:var(--gold); background:rgba(216,180,92,.12); }
+.fav.on{ color:var(--gold); }
+.fav:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; }
+
+.cardwrap > .fav{ top:10px; right:10px; padding:5px 7px; }
+.srowwrap{ position:relative; }
+.srowwrap > .fav{ top:7px; right:0; padding:4px 5px; }
 
 .card{
   display:block; position:relative;
@@ -278,7 +294,7 @@ body::before{
 .card:hover::before{ opacity:1; }
 .card:focus-visible{ outline:2px solid var(--arc); outline-offset:3px; }
 
-.card .title{ font-size:15px; font-weight:700; letter-spacing:-.01em; }
+.card .title{ font-size:15px; font-weight:700; letter-spacing:-.01em; padding-right:26px; }
 .card .desc{ margin-top:6px; font-size:13px; color:var(--muted); line-height:1.55; }
 .card .from{
   margin-top:13px; padding-top:11px; border-top:1px solid var(--line);
@@ -545,8 +561,8 @@ function 로고태그(사이트, 주소){
    브라우저의 localStorage에 저장합니다. 서버로 전송되지 않습니다.
    시크릿 모드 등 저장이 막힌 환경에서는 자동으로 임시 보관으로 넘어갑니다. */
 
-const 키 = { recent:'loahub.recent', pinned:'loahub.pinned' };
-const 임시보관 = { recent:[], pinned:[] };
+const 키 = { recent:'loahub.recent', pinned:'loahub.pinned', favtools:'loahub.favtools' };
+const 임시보관 = { recent:[], pinned:[], favtools:[] };
 let 저장가능 = false;
 
 try {
@@ -731,16 +747,30 @@ $charInput.addEventListener('input', () => {
 
 let 현재보기 = '기능별';   // '기능별' 또는 '사이트별'
 
-// 기능별 보기 — 분류로 묶어서 카드로 표시
-function 기능별그리기(){
-  const 모든분류 = [...분류순서, ...new Set(기능목록.map(t => t.분류))]
-    .filter((v,i,a) => a.indexOf(v) === i);
+// 도구 하나를 구분하는 값. 같은 이름이 여러 사이트에 있어서 사이트까지 붙입니다.
+function 도구키(t){ return t.사이트 + '|' + t.기능; }
 
-  $results.innerHTML = 모든분류.map(분류 => {
-    const 항목들 = 기능목록.filter(t => t.분류 === 분류);
-    if (항목들.length === 0) return '';
+// 별을 눌렀을 때
+function 즐겨찾기토글(키값){
+  const 목록 = 불러오기('favtools');
+  저장하기('favtools', 목록.includes(키값)
+    ? 목록.filter(k => k !== 키값)
+    : [...목록, 키값]);
+  도구그리기();
+}
 
-    const 카드들 = 항목들.map(t => `
+// 별 버튼 하나
+function 별태그(t, 즐겨목록){
+  const 켜짐 = 즐겨목록.includes(도구키(t));
+  return `<button type="button" class="fav${켜짐 ? ' on' : ''}" data-key="${안전하게(도구키(t))}"
+            title="${켜짐 ? '즐겨찾기 해제' : '즐겨찾기'}"
+            aria-label="${안전하게(t.기능)} ${켜짐 ? '즐겨찾기 해제' : '즐겨찾기'}">${켜짐 ? '★' : '☆'}</button>`;
+}
+
+// 카드 하나
+function 카드태그(t, 즐겨목록){
+  return `
+    <div class="cardwrap">
       <a class="card" href="${안전하게(t.주소)}" target="_blank" rel="noopener noreferrer">
         <div class="title">${안전하게(t.기능)}</div>
         <div class="desc">${안전하게(t.설명)}</div>
@@ -748,34 +778,60 @@ function 기능별그리기(){
           ${로고태그(t.사이트, t.주소)}
           <span class="sitename" title="${안전하게(도메인(t.주소))}">${안전하게(t.사이트)}</span>
         </div>
-      </a>`).join('');
+      </a>
+      ${별태그(t, 즐겨목록)}
+    </div>`;
+}
 
-    return `
-      <section class="group">
-        <div class="group-head">
-          <h2>${안전하게(분류)}</h2>
-          <span class="rule"></span>
-          <span class="count">${항목들.length}</span>
-        </div>
-        <div class="grid">${카드들}</div>
-      </section>`;
+// 섹션 하나 (제목 + 카드들)
+function 섹션태그(제목, 항목들, 즐겨목록){
+  return `
+    <section class="group">
+      <div class="group-head">
+        <h2>${안전하게(제목)}</h2>
+        <span class="rule"></span>
+        <span class="count">${항목들.length}</span>
+      </div>
+      <div class="grid">${항목들.map(t => 카드태그(t, 즐겨목록)).join('')}</div>
+    </section>`;
+}
+
+// 맨 위에 붙는 즐겨찾기 섹션
+function 즐겨찾기섹션(즐겨목록){
+  if (즐겨목록.length === 0) return '';
+  const 항목들 = 기능목록.filter(t => 즐겨목록.includes(도구키(t)));
+  if (항목들.length === 0) return '';
+  return 섹션태그('★ 즐겨찾기', 항목들, 즐겨목록);
+}
+
+// 기능별 보기 — 분류로 묶어서 카드로 표시
+function 기능별그리기(즐겨목록){
+  const 모든분류 = [...분류순서, ...new Set(기능목록.map(t => t.분류))]
+    .filter((v,i,a) => a.indexOf(v) === i);
+
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + 모든분류.map(분류 => {
+    const 항목들 = 기능목록.filter(t => t.분류 === 분류);
+    return 항목들.length ? 섹션태그(분류, 항목들, 즐겨목록) : '';
   }).join('');
 }
 
 // 사이트별 보기 — 사이트로 묶어서 패널로 표시
-function 사이트별그리기(){
+function 사이트별그리기(즐겨목록){
   const 모든사이트 = [...사이트순서, ...new Set(기능목록.map(t => t.사이트))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
-  $results.innerHTML = `<div class="sitegrid">` + 모든사이트.map(사이트 => {
+  const 패널들 = 모든사이트.map(사이트 => {
     const 항목들 = 기능목록.filter(t => t.사이트 === 사이트);
     if (항목들.length === 0) return '';
 
     const 줄들 = 항목들.map(t => `
-      <a class="srow" href="${안전하게(t.주소)}" target="_blank" rel="noopener noreferrer">
-        <div class="t">${안전하게(t.기능)}</div>
-        <div class="d">${안전하게(t.설명)}</div>
-      </a>`).join('');
+      <div class="srowwrap">
+        <a class="srow" href="${안전하게(t.주소)}" target="_blank" rel="noopener noreferrer">
+          <div class="t">${안전하게(t.기능)}</div>
+          <div class="d">${안전하게(t.설명)}</div>
+        </a>
+        ${별태그(t, 즐겨목록)}
+      </div>`).join('');
 
     return `
       <section class="sitepanel">
@@ -787,15 +843,27 @@ function 사이트별그리기(){
         <div class="dom">${안전하게(도메인(항목들[0].주소))}</div>
         ${줄들}
       </section>`;
-  }).join('') + `</div>`;
+  }).join('');
+
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + `<div class="sitegrid">` + 패널들 + `</div>`;
 }
 
 function 도구그리기(){
   $viewFeature.setAttribute('aria-pressed', 현재보기 === '기능별');
   $viewSite.setAttribute('aria-pressed', 현재보기 === '사이트별');
 
-  if (현재보기 === '사이트별') 사이트별그리기();
-  else 기능별그리기();
+  const 즐겨목록 = 불러오기('favtools');
+
+  if (현재보기 === '사이트별') 사이트별그리기(즐겨목록);
+  else 기능별그리기(즐겨목록);
+
+  // 별 버튼 연결
+  $results.querySelectorAll('.fav').forEach(버튼 => {
+    버튼.onclick = e => {
+      e.preventDefault();
+      즐겨찾기토글(버튼.dataset.key);
+    };
+  });
 }
 
 // 전환 버튼을 누르면 보기 방식을 바꾸고 기억해둠
