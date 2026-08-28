@@ -266,6 +266,34 @@ body::before{
 .group-head .rule{ flex:1; height:1px; background:var(--line); }
 .group-head .count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
 
+/* 분류 · 사이트 필터 알약 */
+.filterchips{ margin-top:18px; display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+.filterchips:empty{ display:none; }
+
+.fchip{
+  display:inline-flex; align-items:baseline; gap:7px;
+  padding:6px 13px;
+  background:transparent; color:var(--muted);
+  border:1px solid var(--line); border-radius:999px;
+  font-family:var(--body); font-size:12.5px; cursor:pointer;
+  transition:border-color .15s, color .15s, background .15s;
+}
+.fchip .n{ font-family:var(--mono); font-size:10.5px; color:var(--gold-dim); }
+.fchip:hover{ color:var(--text); border-color:var(--gold-dim); }
+.fchip[aria-pressed="true"]{
+  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:700;
+}
+.fchip[aria-pressed="true"] .n{ color:rgba(20,18,27,.6); }
+.fchip:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; }
+
+.fclear{
+  margin-left:3px; padding:6px 8px;
+  background:none; border:none;
+  color:var(--muted); font-family:var(--body); font-size:12px;
+  cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+}
+.fclear:hover{ color:var(--text); }
+
 .group-note{
   margin:-4px 0 14px; padding:9px 12px;
   background:rgba(216,180,92,.07); border-left:2px solid var(--gold-dim); border-radius:0 7px 7px 0;
@@ -441,6 +469,7 @@ footer a:hover{ color:var(--gold); }
         <button class="vbtn" id="viewSite"    data-view="site"    aria-pressed="false">사이트별</button>
       </div>
     </div>
+    <div class="filterchips" id="filterChips"></div>
     <div id="results"></div>
   </section>
 
@@ -606,6 +635,7 @@ const $saved      = document.getElementById('saved');
 const $results    = document.getElementById('results');
 const $viewFeature = document.getElementById('viewFeature');
 const $viewSite    = document.getElementById('viewSite');
+const $filterChips = document.getElementById('filterChips');
 
 // HTML에 그대로 넣어도 안전하게 문자 변환
 function 안전하게(글자){
@@ -883,31 +913,31 @@ function 섹션태그(제목, 항목들, 즐겨목록){
 }
 
 // 맨 위에 붙는 즐겨찾기 섹션
-function 즐겨찾기섹션(즐겨목록){
+function 즐겨찾기섹션(즐겨목록, 목록){
   if (즐겨목록.length === 0) return '';
-  const 항목들 = 기능목록.filter(t => 즐겨목록.includes(도구키(t)));
+  const 항목들 = 목록.filter(t => 즐겨목록.includes(도구키(t)));
   if (항목들.length === 0) return '';
   return 섹션태그('★ 즐겨찾기', 항목들, 즐겨목록);
 }
 
 // 기능별 보기 — 분류로 묶어서 카드로 표시
-function 기능별그리기(즐겨목록){
-  const 모든분류 = [...분류순서, ...new Set(기능목록.map(t => t.분류))]
+function 기능별그리기(즐겨목록, 목록){
+  const 모든분류 = [...분류순서, ...new Set(목록.map(t => t.분류))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
-  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + 모든분류.map(분류 => {
-    const 항목들 = 기능목록.filter(t => t.분류 === 분류);
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록, 목록) + 모든분류.map(분류 => {
+    const 항목들 = 목록.filter(t => t.분류 === 분류);
     return 항목들.length ? 섹션태그(분류, 항목들, 즐겨목록) : '';
   }).join('');
 }
 
 // 사이트별 보기 — 사이트로 묶어서 패널로 표시
-function 사이트별그리기(즐겨목록){
-  const 모든사이트 = [...사이트순서, ...new Set(기능목록.map(t => t.사이트))]
+function 사이트별그리기(즐겨목록, 목록){
+  const 모든사이트 = [...사이트순서, ...new Set(목록.map(t => t.사이트))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
   const 패널들 = 모든사이트.map(사이트 => {
-    const 항목들 = 기능목록.filter(t => t.사이트 === 사이트);
+    const 항목들 = 목록.filter(t => t.사이트 === 사이트);
     if (항목들.length === 0) return '';
 
     const 줄들 = 항목들.map(t => `
@@ -931,17 +961,66 @@ function 사이트별그리기(즐겨목록){
       </section>`;
   }).join('');
 
-  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + `<div class="sitegrid">` + 패널들 + `</div>`;
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록, 목록) + `<div class="sitegrid">` + 패널들 + `</div>`;
+}
+
+/* 필터 — 아무것도 안 고르면 전체가 보이고, 고른 것만 남습니다.
+   기능별 보기에서는 분류로, 사이트별 보기에서는 사이트로 거릅니다. */
+const 선택분류 = new Set();
+const 선택사이트 = new Set();
+
+function 지금선택(){ return 현재보기 === '사이트별' ? 선택사이트 : 선택분류; }
+
+function 걸러진목록(){
+  const 선택 = 지금선택();
+  if (선택.size === 0) return 기능목록;
+  const 기준 = 현재보기 === '사이트별' ? '사이트' : '분류';
+  return 기능목록.filter(t => 선택.has(t[기준]));
+}
+
+function 필터그리기(){
+  const 사이트별 = 현재보기 === '사이트별';
+  const 기준 = 사이트별 ? '사이트' : '분류';
+  const 정해진순서 = 사이트별 ? 사이트순서 : 분류순서;
+  const 선택 = 지금선택();
+
+  // 실제로 도구가 있는 것만, 정해진 순서대로
+  const 있는것 = [...정해진순서, ...new Set(기능목록.map(t => t[기준]))]
+    .filter((v,i,a) => a.indexOf(v) === i)
+    .filter(v => 기능목록.some(t => t[기준] === v));
+
+  const 알약들 = 있는것.map(이름 => {
+    const n = 기능목록.filter(t => t[기준] === 이름).length;
+    return `<button type="button" class="fchip" data-name="${안전하게(이름)}" aria-pressed="${선택.has(이름)}">
+      ${안전하게(이름)} <span class="n">${n}</span></button>`;
+  }).join('');
+
+  $filterChips.innerHTML = 알약들 +
+    (선택.size ? `<button type="button" class="fclear" id="fClear">전체 해제</button>` : '');
+
+  $filterChips.querySelectorAll('.fchip').forEach(버튼 => {
+    버튼.onclick = () => {
+      const 이름 = 버튼.dataset.name;
+      선택.has(이름) ? 선택.delete(이름) : 선택.add(이름);
+      도구그리기();
+    };
+  });
+
+  const 해제 = document.getElementById('fClear');
+  if (해제) 해제.onclick = () => { 선택.clear(); 도구그리기(); };
 }
 
 function 도구그리기(){
   $viewFeature.setAttribute('aria-pressed', 현재보기 === '기능별');
   $viewSite.setAttribute('aria-pressed', 현재보기 === '사이트별');
 
-  const 즐겨목록 = 불러오기('favtools');
+  필터그리기();
 
-  if (현재보기 === '사이트별') 사이트별그리기(즐겨목록);
-  else 기능별그리기(즐겨목록);
+  const 즐겨목록 = 불러오기('favtools');
+  const 목록 = 걸러진목록();
+
+  if (현재보기 === '사이트별') 사이트별그리기(즐겨목록, 목록);
+  else 기능별그리기(즐겨목록, 목록);
 
   // 별 버튼 연결
   $results.querySelectorAll('.fav').forEach(버튼 => {
