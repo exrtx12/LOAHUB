@@ -266,28 +266,30 @@ body::before{
 .group-head .rule{ flex:1; height:1px; background:var(--line); }
 .group-head .count{ font-family:var(--mono); font-size:11px; color:var(--muted); }
 
-/* 분류 · 사이트 필터 알약 */
-.filterchips{ margin-top:18px; display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+/* 분류 · 사이트 필터 — 테두리 없이 한 줄로 나열 */
+.filterchips{
+  margin-top:16px; padding-bottom:4px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:2px 20px;
+}
 .filterchips:empty{ display:none; }
 
 .fchip{
-  display:inline-flex; align-items:baseline; gap:7px;
-  padding:6px 13px;
-  background:transparent; color:var(--muted);
-  border:1px solid var(--line); border-radius:999px;
-  font-family:var(--body); font-size:12.5px; cursor:pointer;
-  transition:border-color .15s, color .15s, background .15s;
+  padding:5px 0;
+  background:none; border:none; border-bottom:1.5px solid transparent;
+  color:var(--muted); font-family:var(--body); font-size:13px;
+  cursor:pointer; white-space:nowrap;
+  transition:color .15s, border-color .15s;
 }
-.fchip .n{ font-family:var(--mono); font-size:10.5px; color:var(--gold-dim); }
-.fchip:hover{ color:var(--text); border-color:var(--gold-dim); }
+.fchip .n{ margin-left:5px; font-family:var(--mono); font-size:10px; color:var(--gold-dim); }
+.fchip:hover{ color:var(--text); }
 .fchip[aria-pressed="true"]{
-  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:700;
+  color:var(--gold); font-weight:700; border-bottom-color:var(--gold);
 }
-.fchip[aria-pressed="true"] .n{ color:rgba(20,18,27,.6); }
+.fchip[aria-pressed="true"] .n{ color:var(--gold); }
 .fchip:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; }
 
 .fclear{
-  margin-left:3px; padding:6px 8px;
+  padding:5px 0;
   background:none; border:none;
   color:var(--muted); font-family:var(--body); font-size:12px;
   cursor:pointer; text-decoration:underline; text-underline-offset:3px;
