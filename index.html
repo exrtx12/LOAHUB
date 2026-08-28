@@ -8,8 +8,8 @@
 <meta name="google-site-verification" content="DU7HZJyDyEFHddpENaQvUJxhLx_5g1mVxx-rnKADKf4" />
 <meta name="naver-site-verification" content="980c8b94592af592ff1300c3ad6f8dccb356cf35" />
 
-<title>LOAHUB — 로스트아크 유저 사이트 모음</title>
-<meta name="description" content="클로아, 로펙, 로아와, 로아랩, 로아또, 로아업, 로아차트를 한곳에. 캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다.">
+<title>LOAHUB 로아허브 — 로스트아크 유저 사이트 모음</title>
+<meta name="description" content="로아허브(LOAHUB)는 클로아, 로펙, 로아와, 로아랩, 로아또, 로아업, 로아차트를 한곳에 모은 로스트아크 도구 모음입니다. 캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다.">
 <link rel="canonical" href="https://loahub.kr/">
 
 <!-- 카카오톡·디스코드 등에 링크를 붙여넣을 때 보이는 미리보기 -->
@@ -17,8 +17,8 @@
 <meta property="og:site_name" content="LOAHUB">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:url" content="https://loahub.kr/">
-<meta property="og:title" content="LOAHUB — 로스트아크 유저 사이트 모음">
-<meta property="og:description" content="캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다. 어느 사이트에 뭐가 있는지 외울 필요 없습니다.">
+<meta property="og:title" content="LOAHUB 로아허브 — 로스트아크 유저 사이트 모음">
+<meta property="og:description" content="로아허브. 캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다. 어느 사이트에 뭐가 있는지 외울 필요 없습니다.">
 <meta name="twitter:card" content="summary">
 
 <meta name="theme-color" content="#14121b">
@@ -94,6 +94,7 @@ body::before{
 }
 /* 문장 하나가 한 줄을 차지하게 함. 화면이 좁으면 알아서 다시 접힘 */
 .tagline span{ display:block; }
+.tagline b{ color:#c9c3d8; font-weight:500; }
 
 /* ---------- 캐릭터 검색 ---------- */
 .charsearch{ margin-top:32px; }
@@ -432,6 +433,17 @@ footer a:hover{ color:var(--gold); }
   .topnav a{ font-size:12.5px; }
 }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "로아허브",
+  "alternateName": ["LOAHUB", "로아 허브", "로아헙", "로스트아크 도구 모음"],
+  "url": "https://loahub.kr/",
+  "inLanguage": "ko",
+  "description": "로아허브(LOAHUB)는 흩어진 로스트아크 유저 도구 사이트를 기능 단위로 모아둔 인덱스입니다."
+}
+</script>
 </head>
 
 <body>
@@ -453,7 +465,7 @@ footer a:hover{ color:var(--gold); }
 
   <header class="masthead">
     <h1 class="wordmark">LOA<em>HUB</em></h1>
-    <p class="tagline"><span>캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다.</span><span>어느 사이트에 뭐가 있는지 외울 필요 없습니다.</span></p>
+    <p class="tagline"><span><b>로아허브</b>는 캐릭터명 한 번만 입력하면 주요 사이트 전부에서 조회합니다.</span><span>어느 사이트에 뭐가 있는지 외울 필요 없습니다.</span></p>
 
     <div class="charsearch">
       <div class="row">
@@ -535,7 +547,7 @@ const 고정보관개수 = 10;   // 위쪽 고정 줄에 올릴 수 있는 최�
 
 const 기능목록 = [
 
-  /* ---------- 1. 인게임 일정 · 컨텐츠 ---------- */
+  /* ---------- 1. 인게임 일정 ---------- */
   { 기능:"떠돌이 상인",          설명:"현재 뜬 상인 위치와 판매 목록",            사이트:"클로아",   주소:"https://kloa.gg/merchant", 분류:"인게임 일정" },
   { 기능:"모험 섬 · 주간 일정표", 설명:"카오스게이트 · 필드보스 등장 시간까지",     사이트:"로아와",   주소:"https://loawa.com/", 분류:"인게임 일정" },
   { 기능:"컨텐츠 캘린더",        설명:"일정을 달력 형태로 정리",                  사이트:"로아랩",   주소:"https://lo4.app/calendars", 분류:"인게임 일정" },
