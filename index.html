@@ -309,12 +309,16 @@ body::before{
 .fav{
   position:absolute; z-index:2;
   background:none; border:none; border-radius:6px;
-  color:#4e4862; font-family:var(--body); font-size:14px; line-height:1;
+  color:#8b849e; font-family:var(--body); font-size:15px; line-height:1;
   cursor:pointer; transition:color .15s, background .15s;
 }
 .fav:hover{ color:var(--gold); background:rgba(216,180,92,.12); }
 .fav.on{ color:var(--gold); }
 .fav:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; }
+
+/* 카드에 마우스를 올리면 별이 한 번 더 또렷해집니다 */
+.cardwrap:hover .fav:not(.on),
+.srowwrap:hover .fav:not(.on){ color:var(--text); }
 
 .cardwrap > .fav{ top:10px; right:10px; padding:5px 7px; }
 .srowwrap{ position:relative; }
@@ -922,9 +926,10 @@ function 섹션태그(제목, 항목들, 즐겨목록){
 }
 
 // 맨 위에 붙는 즐겨찾기 섹션
-function 즐겨찾기섹션(즐겨목록, 목록){
+// 필터를 걸어도 즐겨찾기한 도구는 전부 그대로 보입니다.
+function 즐겨찾기섹션(즐겨목록){
   if (즐겨목록.length === 0) return '';
-  const 항목들 = 목록.filter(t => 즐겨목록.includes(도구키(t)));
+  const 항목들 = 기능목록.filter(t => 즐겨목록.includes(도구키(t)));
   if (항목들.length === 0) return '';
   return 섹션태그('★ 즐겨찾기', 항목들, 즐겨목록);
 }
@@ -934,7 +939,7 @@ function 기능별그리기(즐겨목록, 목록){
   const 모든분류 = [...분류순서, ...new Set(목록.map(t => t.분류))]
     .filter((v,i,a) => a.indexOf(v) === i);
 
-  $results.innerHTML = 즐겨찾기섹션(즐겨목록, 목록) + 모든분류.map(분류 => {
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + 모든분류.map(분류 => {
     const 항목들 = 목록.filter(t => t.분류 === 분류);
     return 항목들.length ? 섹션태그(분류, 항목들, 즐겨목록) : '';
   }).join('');
@@ -970,7 +975,7 @@ function 사이트별그리기(즐겨목록, 목록){
       </section>`;
   }).join('');
 
-  $results.innerHTML = 즐겨찾기섹션(즐겨목록, 목록) + `<div class="sitegrid">` + 패널들 + `</div>`;
+  $results.innerHTML = 즐겨찾기섹션(즐겨목록) + `<div class="sitegrid">` + 패널들 + `</div>`;
 }
 
 /* 필터 — 아무것도 안 고르면 전체가 보이고, 고른 것만 남습니다.
