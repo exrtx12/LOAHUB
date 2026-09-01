@@ -532,6 +532,50 @@ footer a:hover{ color:var(--gold); }
 
 <body>
 
+<!-- 처음 방문했을 때 뜨는 사용법 안내 -->
+<div class="modal" id="howto" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="howtoTitle">
+    <button type="button" class="modal-x" id="howtoX" aria-label="닫기">✕</button>
+
+    <p class="modal-eyebrow">처음 오셨나요</p>
+    <h2 id="howtoTitle">로아허브 사용법</h2>
+
+    <ol class="howsteps">
+      <li>
+        <span class="num">1</span>
+        <div>
+          <b>캐릭터명을 검색하세요</b>
+          <p>클로아 · 로펙 · 로아와 · 로아랩 · 로아업 다섯 곳으로 가는 링크가 한 번에 나옵니다. 로펙 시뮬레이터와 로아랩 계산기는 그 캐릭터가 이미 입력된 채로 열립니다.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">2</span>
+        <div>
+          <b>본캐는 ★로 고정하세요</b>
+          <p>다음에 들어왔을 때 검색창 아래에 바로 뜹니다. 최근 검색한 다섯 개도 함께 남습니다.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">3</span>
+        <div>
+          <b>도구는 분류를 골라 보세요</b>
+          <p>일곱 사이트의 기능 43개가 아홉 분류로 묶여 있습니다. <b class="g">전체 보기</b>를 누르면 한 번에 다 나옵니다.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">4</span>
+        <div>
+          <b>자주 쓰는 도구도 ★</b>
+          <p>즐겨찾기한 도구는 목록 맨 위에 모입니다. 분류를 걸러도 즐겨찾기는 그대로 보입니다.</p>
+        </div>
+      </li>
+    </ol>
+
+    <button type="button" class="modal-go" id="howtoClose">시작하기</button>
+    <p class="modal-foot">상단 <b>사용법</b>을 누르면 언제든 다시 볼 수 있습니다.</p>
+  </div>
+</div>
+
 <!-- PC 넓은 화면에서만 나타나는 양옆 세로 광고 자리 -->
 <aside class="adrail left"  id="adLeft"  aria-hidden="true"></aside>
 <aside class="adrail right" id="adRight" aria-hidden="true"></aside>
@@ -1340,49 +1384,6 @@ $charInput.focus();
 <!-- Cloudflare Web Analytics — 쿠키를 쓰지 않는 방문자 통계 -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "60be89486e3045448ac6f7e285005df0"}'></script>
 
-<!-- 처음 방문했을 때 뜨는 사용법 안내 -->
-<div class="modal" id="howto" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="howtoTitle">
-    <button type="button" class="modal-x" id="howtoX" aria-label="닫기">✕</button>
-
-    <p class="modal-eyebrow">처음 오셨나요</p>
-    <h2 id="howtoTitle">로아허브 사용법</h2>
-
-    <ol class="howsteps">
-      <li>
-        <span class="num">1</span>
-        <div>
-          <b>캐릭터명을 검색하세요</b>
-          <p>클로아 · 로펙 · 로아와 · 로아랩 · 로아업 다섯 곳으로 가는 링크가 한 번에 나옵니다. 로펙 시뮬레이터와 로아랩 계산기는 그 캐릭터가 이미 입력된 채로 열립니다.</p>
-        </div>
-      </li>
-      <li>
-        <span class="num">2</span>
-        <div>
-          <b>본캐는 ★로 고정하세요</b>
-          <p>다음에 들어왔을 때 검색창 아래에 바로 뜹니다. 최근 검색한 다섯 개도 함께 남습니다.</p>
-        </div>
-      </li>
-      <li>
-        <span class="num">3</span>
-        <div>
-          <b>도구는 분류를 골라 보세요</b>
-          <p>일곱 사이트의 기능 43개가 아홉 분류로 묶여 있습니다. <b class="g">전체 보기</b>를 누르면 한 번에 다 나옵니다.</p>
-        </div>
-      </li>
-      <li>
-        <span class="num">4</span>
-        <div>
-          <b>자주 쓰는 도구도 ★</b>
-          <p>즐겨찾기한 도구는 목록 맨 위에 모입니다. 분류를 걸러도 즐겨찾기는 그대로 보입니다.</p>
-        </div>
-      </li>
-    </ol>
-
-    <button type="button" class="modal-go" id="howtoClose">시작하기</button>
-    <p class="modal-foot">상단 <b>사용법</b>을 누르면 언제든 다시 볼 수 있습니다.</p>
-  </div>
-</div>
 
 </body>
 </html>
