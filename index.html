@@ -1177,7 +1177,8 @@ function 필터그리기(){
       전체 보기 <span class="n">${기능목록.length}</span></button>`;
 
   $filterChips.innerHTML =
-    `<span class="flabel">${사이트별 ? '사이트' : '분류'}</span>` + 전체버튼 + 알약들;
+    `<span class="flabel">${사이트별 ? '사이트' : '분류'}</span>` + 전체버튼 + 알약들 +
+    (선택.size ? `<button type="button" class="fclear" id="fClear">전체 해제</button>` : '');
 
   $filterChips.querySelectorAll('.fchip').forEach(버튼 => {
     버튼.onclick = () => {
@@ -1194,6 +1195,9 @@ function 필터그리기(){
       도구그리기();
     };
   });
+
+  const 해제 = document.getElementById('fClear');
+  if (해제) 해제.onclick = () => { 선택.clear(); 도구그리기(); };
 }
 
 function 도구그리기(){
