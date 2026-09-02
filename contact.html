@@ -74,13 +74,31 @@ strong{ font-weight:700; color:#fff; }
   color:var(--gold); text-decoration:none; word-break:break-all;
 }
 .mailbox .addr:hover{ text-decoration:underline; text-underline-offset:4px; }
-.mailbox .btn{
-  display:inline-block; margin-top:16px; padding:11px 24px;
-  background:var(--gold); color:#14121b;
-  border-radius:9px; font-size:14px; font-weight:700; text-decoration:none;
-  transition:filter .15s;
+.mailbox .addr{
+  background:none; border:none; cursor:pointer;
 }
-.mailbox .btn:hover{ filter:brightness(1.08); }
+.mailbtns{
+  margin-top:18px; display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+}
+.mailbox .btn{
+  display:inline-block; padding:10px 18px;
+  background:transparent; color:var(--text);
+  border:1px solid var(--line); border-radius:9px;
+  font-family:var(--body); font-size:13.5px; font-weight:500;
+  text-decoration:none; cursor:pointer;
+  transition:border-color .15s, background .15s, color .15s;
+}
+.mailbox .btn:hover{ border-color:var(--gold-dim); background:var(--panel-hi); }
+.mailbox .btn.primary{
+  background:var(--gold); color:#14121b; border-color:var(--gold); font-weight:700;
+}
+.mailbox .btn.primary:hover{ filter:brightness(1.08); background:var(--gold); }
+.mailbox .btn:focus-visible{ outline:2px solid var(--arc); outline-offset:2px; }
+
+.copied{
+  margin-top:12px; font-size:12.5px; color:var(--gold);
+}
+.copied[hidden]{ display:none; }
 
 .box{ margin-top:20px; padding:18px 20px; background:var(--panel); border:1px solid var(--line); border-radius:11px; }
 .box p:first-child{ margin-top:0; }
@@ -132,11 +150,19 @@ footer{ margin-top:56px; padding-top:26px; border-top:1px solid var(--line); col
 
   <div class="mailbox">
     <div class="cap">이메일</div>
-    <a class="addr" href="mailto:exrtx12@gmail.com">exrtx12@gmail.com</a>
-    <div><a class="btn" href="mailto:exrtx12@gmail.com?subject=%5BLOAHUB%5D%20%EB%AC%B8%EC%9D%98%EB%93%9C%EB%A6%BD%EB%8B%88%EB%8B%A4">메일 보내기</a></div>
+    <button type="button" class="addr" id="mailAddr" title="눌러서 복사">exrtx12@gmail.com</button>
+
+    <div class="mailbtns">
+      <button type="button" class="btn primary" id="copyBtn">주소 복사</button>
+      <a class="btn" id="gmailBtn" target="_blank" rel="noopener noreferrer"
+         href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=exrtx12@gmail.com&amp;su=%5BLOAHUB%5D%20%EB%AC%B8%EC%9D%98%EB%93%9C%EB%A6%BD%EB%8B%88%EB%8B%A4">Gmail로 작성</a>
+      <a class="btn" href="mailto:exrtx12@gmail.com?subject=%5BLOAHUB%5D%20%EB%AC%B8%EC%9D%98%EB%93%9C%EB%A6%BD%EB%8B%88%EB%8B%A4">메일 앱으로 열기</a>
+    </div>
+
+    <p class="copied" id="copiedMsg" hidden>주소를 복사했습니다</p>
   </div>
 
-  <p class="muted">버튼을 누르면 메일 프로그램이 열립니다. 열리지 않으면 위 주소를 복사해서 직접 보내주세요.</p>
+  <p class="muted"><b>주소 복사</b>를 누른 뒤 평소 쓰시는 메일에 붙여넣으시면 가장 확실합니다. <b>메일 앱으로 열기</b>는 컴퓨터에 메일 프로그램이 지정돼 있어야 동작하며, 지정돼 있지 않으면 아무 반응이 없을 수 있습니다.</p>
 
   <h2>이런 문의를 받습니다</h2>
 
@@ -193,6 +219,50 @@ footer{ margin-top:56px; padding-top:26px; border-top:1px solid var(--line); col
   </footer>
 
 </div>
+
+<script>
+/* 이메일 주소 복사 */
+(function(){
+  const 주소 = 'exrtx12@gmail.com';
+  const $msg = document.getElementById('copiedMsg');
+  let 타이머;
+
+  function 복사(){
+    const 알리기 = (글 = '주소를 복사했습니다') => {
+      $msg.textContent = 글;
+      $msg.hidden = false;
+      clearTimeout(타이머);
+      타이머 = setTimeout(() => { $msg.hidden = true; }, 2500);
+    };
+
+    // 최신 브라우저
+    if (navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(주소).then(알리기).catch(구식복사);
+      return;
+    }
+    구식복사();
+
+    // 구형 브라우저용 대체 방법
+    function 구식복사(){
+      const t = document.createElement('textarea');
+      t.value = 주소;
+      t.style.position = 'fixed';
+      t.style.opacity = '0';
+      document.body.appendChild(t);
+      t.select();
+      let 됐나 = false;
+      try { 됐나 = document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(t);
+
+      // 복사가 안 되는 환경이면 솔직히 알리고 직접 복사하도록 안내
+      알리기(됐나 ? '주소를 복사했습니다' : '주소를 직접 선택해 복사해 주세요');
+    }
+  }
+
+  document.getElementById('copyBtn').onclick  = 복사;
+  document.getElementById('mailAddr').onclick = 복사;
+})();
+</script>
 
 <script>
 (function(){
